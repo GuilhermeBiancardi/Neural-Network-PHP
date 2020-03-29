@@ -1,2 +1,2 @@
-# guilhermeaw.com-gmail.com
+# Redes Neurais em PHP
 Redes Neurais
