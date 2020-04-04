@@ -243,4 +243,12 @@ Com os dados de treino devidamente guardados, podemos inseri-los em uma rede e e
 
 ```
 
+## Debugando os dados
+
+É possivel acompanhar o andamento da rede pelo comando:
+
+```php
+    $nn->debug();
+```
+
 Aproveitem!!!
