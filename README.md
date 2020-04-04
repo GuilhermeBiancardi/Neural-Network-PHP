@@ -71,6 +71,8 @@ Nosso **Array** de configurações necessita dos seguintes parâmetros (falaremo
 
 ## Inserindo os pesos manualmente
 
+IMPORTANTE!!! A rede gera os pesos aleatóriamente, mas é possível importar pessos pré-definidos manualmente, caso eles não forem informados a rede irá gerar pesos aleatórios.
+
 **Sinapses:** Caso precise testar a rede com pesos já existentes é possível inserir os mesmos na rede, mas para isso é preciso entender a lógica organizacional da rede:
 
 Exemplo de Rede 2x2x1
