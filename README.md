@@ -106,10 +106,8 @@ seguinte forma:
         "w2-4" => 0.3,
 
         "w3-5" => 0.4,
-        "w3-5" => 0.5,
 
         "w4-5" => 0.4,
-        "w4-5" => 0.5,
 
     );
 ```
@@ -177,10 +175,8 @@ Após definir todos os valores basta chamar a função de treinamento, se todos 
         "w2-4" => 0.3,
         
         "w3-5" => 0.4,
-        "w3-5" => 0.5,
         
         "w4-5" => 0.4,
-        "w4-5" => 0.5,
 
     );
 
