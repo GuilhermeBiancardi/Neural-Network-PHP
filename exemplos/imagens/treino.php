@@ -38,10 +38,12 @@ $nn->setConfiguration($rede);
 
 // Tipos de fontes a serem treinadas
 $images = Array(
+    // Fonte Calibri
     "../../images/calibri_a.png",
     "../../images/calibri_b.png",
     "../../images/calibri_c.png",
     "../../images/calibri_d.png",
+    // Fonte Segoe
     "../../images/segoe_a.png",
     "../../images/segoe_b.png",
     "../../images/segoe_c.png",
