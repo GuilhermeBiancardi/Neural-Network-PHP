@@ -69,7 +69,7 @@ class NeuralNetwork {
      *
      * @var Float
      */
-    private $stop_error = 0.0001;
+    private $stop_error = 0.001;
 
     /**
      * Armazena todos os Perceptrons da Rede.
@@ -134,21 +134,222 @@ class NeuralNetwork {
     private $epoch = 0;
 
     /**
-     * Construtor da Classe
+     * Espaço alocado na memória.
+     *
+     * @var String
+     */
+    private $memory_limit = "";
+
+    /**
+     * Dados de configuração da rede.
+     *
+     * @var Array
+     */
+    private $rede;
+
+    /**
+     * Armazena todos os dados de treino da rede.
+     *
+     * @var Array
+     */
+    private $train_database = Array();
+
+    public function __construct() {
+        //
+    }
+
+    /**
+     * Incorpora a configuração da rede
      *
      * @param Array $rede
      */
-    public function __construct($rede) {
+    public function setConfiguration($rede) {
+        $this->rede = $rede;
+        
+        if(isset($rede["memory_limit"])) {
+            $this->normalizeMemory($rede["memory_limit"]);
+        } else {
+            $this->normalizeMemory($this->memory_limit);
+        }
 
+        if(isset($rede["structure"])) {
+            $this->normalizeEstrutura($rede["structure"]);
+        }
+
+        if(isset($rede["error_learn"])) {
+            $this->normalizeError($rede["error_learn"]);
+        } else {
+            $this->normalizeError($this->taxa_aprendizagem);
+        }
+
+        if(isset($rede["weight_variation"])) {
+            $this->normalizeWeight($rede["weight_variation"]);
+        } else {
+            $this->normalizeWeight($this->variacao_peso);
+        }
+
+        if(isset($rede["bias_variation"])) {
+            $this->normalizeBias($rede["bias_variation"]);
+        } else {
+            $this->normalizeBias($this->variacao_bias);
+        }
+
+        if(isset($rede["error"])) {
+            $this->normalizeErrorStop($rede["error"]);
+        } else {
+            $this->normalizeErrorStop($this->error);
+        }
+    }
+
+    /**
+     * Normaliza os Dados
+     *
+     * @param Array $rede
+     * @return Boolean
+     */
+    private function normalizeMemory($memory) {
+
+        // Verifica se um valor foi informado.
+        if(isset($memory) && $memory != "") {
+
+            $this->memory_limit = $memory;
+
+            // Reserva o espaço informado na Memória
+            ini_set("memory_limit", $this->memory_limit);
+        }
+
+        // Informo ao normalizador se a informação está OK
         $this->normalize = Array (
-            "memory_limit" => $this->normalizeMemory($rede),
-            "structure" => $this->normalizeEstrutura($rede),
-            "values" => $this->normalizeValues($rede),
-            "response" => $this->normalizeResponse($rede),
-            "error_learn" => $this->normalizeError($rede),
-            "weight_variation" => $this->normalizeWeight($rede),
-            "bias_variation" => $this->normalizeBias($rede),
-            "error" => $this->normalizeErrorStop($rede),
+            "memory_limit" => true
+        );
+    }
+
+    /**
+     * Normaliza os Dados
+     *
+     * @param Array $rede
+     * @return Boolean/String
+     */
+    private function normalizeEstrutura($structure) {
+
+        $return = true;
+
+        // Verifica se um valor foi informado.
+        if(isset($structure)) {
+
+            // Checa se o valor de structure é um Array
+            if(is_array($structure)) {
+                
+                // Armazena a Estrutura na Rede
+                $this->estrutura = $structure;
+
+            } else {
+                $return = "Os dados informados não estão armazenados em um Array.";
+            }
+
+        } else {
+            $return = "Nenhum dado Informado.";
+        }
+
+        // Informo ao normalizador se a informação está OK
+        $this->normalize = Array (
+            "structure" => $return
+        );
+
+    }
+
+    /**
+     * Normaliza os Dados
+     *
+     * @param Array $rede
+     * @return Boolean/String
+     */
+    private function normalizeValues($values) {
+
+        $return = true;
+
+        // Verifica se um valor foi informado.
+        if(isset($values)) {
+
+            // Checa se o valor de values é um Array
+            if(is_array($values)) {
+
+                // Armazena a quantidade de Entradas Informadas.
+                $quantidade_entradas_informadas = count($values);
+
+                if($quantidade_entradas_informadas == $this->estrutura[0]) {
+
+                    // Armazena os valores de Entrada na Rede
+                    $this->entradas = $values;
+
+                } else {
+                    $return = "A quantidade de Neurônios de Entrada não são iguais a quantidade dos Valores de Entrada.";
+                }
+
+            } else {
+                $return = "Os dados informados não estão armazenados em um Array.";
+            }
+
+        } else {
+            $return = "Nenhum dado Informado.";
+        }
+
+        // Informo ao normalizador se a informação está OK
+        $this->normalize = Array (
+            "values" => $return
+        );
+
+    }
+
+    /**
+     * Normaliza os Dados
+     *
+     * @param Array $rede
+     * @return Boolean/String
+     */
+    private function normalizeResponse($response) {
+
+        $return = true;
+
+        // Verifica se um valor foi informado.
+        if(isset($response)) {
+
+            // Checa se o valor de response é um Array
+            if(is_array($response)) {
+
+                // Armazena a quantidade de Saídas Esperadas.
+                $quantidade_saidas_esperadas = count($response);
+
+                // Armazena a quantidade de Saídas da Rede
+                $quantidade_saidas = (count($this->estrutura) -1);
+
+                if($quantidade_saidas_esperadas == $this->estrutura[$quantidade_saidas]) {
+
+                    // Armazena o index do primeiro Perceptron da Camada de Saída
+                    $index_saida = (array_sum($this->estrutura) - ($quantidade_saidas_esperadas - 1));
+                    
+                    // Percorre o Array de Saídas Esperadas
+                    for ($i = 0; $i < $quantidade_saidas_esperadas; $i++) {
+                        
+                        // Armazena os valores das Saídas Esperadas na Rede. 
+                        $this->saidas_esperadas[($index_saida + $i)] = $response[$i];
+                    }
+
+                } else {
+                    $return = "A quantidade de Neurônios de Saída não são iguais a quantidade de Saídas Esperadas.";
+                }
+
+            } else {
+                $return = "Os dados informados não estão armazenados em um Array.";
+            }
+
+        } else {
+            $return = "Nenhum dado Informado.";
+        }
+
+        // Informo ao normalizador se a informação está OK
+        $this->normalize = Array (
+            "response" => $return
         );
     }
 
@@ -158,147 +359,21 @@ class NeuralNetwork {
      * @param Array $rede
      * @return Boolean
      */
-    private function normalizeMemory($rede) {
+    private function normalizeError($error_learn) {
 
-        // Verifica se um valor foi informado.
-        if(isset($rede["memory_limit"])) {
-
-            // Reserva o espaço informado na Memória
-            ini_set("memory_limit", $rede["memory_limit"]);
-        }
-
-        return true;
-    }
-
-    /**
-     * Normaliza os Dados
-     *
-     * @param Array $rede
-     * @return Boolean/String
-     */
-    private function normalizeEstrutura($rede) {
-
-        // Verifica se um valor foi informado.
-        if(isset($rede["structure"])) {
-
-            // Checa se o valor de structure é um Array
-            if(is_array($rede["structure"])) {
-                
-                // Armazena a Estrutura na Rede
-                $this->estrutura = $rede["structure"];
-
-                return true;
-
-            } else {
-                return "Os dados informados não estão armazenados em um Array.";
-            }
-
-        } else {
-            return "Nenhum dado Informado.";
-        }
-    }
-
-    /**
-     * Normaliza os Dados
-     *
-     * @param Array $rede
-     * @return Boolean/String
-     */
-    private function normalizeValues($rede) {
-
-        // Verifica se um valor foi informado.
-        if(isset($rede["values"])) {
-
-            // Checa se o valor de values é um Array
-            if(is_array($rede["values"])) {
-
-                // Armazena a quantidade de Entradas Informadas.
-                $quantidade_entradas_informadas = count($rede["values"]);
-
-                if($quantidade_entradas_informadas == $rede["structure"][0]) {
-
-                    // Armazena os valores de Entrada na Rede
-                    $this->entradas = $rede["values"];
-
-                    return true;
-
-                } else {
-                    return "A quantidade de Neurônios de Entrada não são iguais a quantidade dos Valores de Entrada.";
-                }
-
-            } else {
-                return "Os dados informados não estão armazenados em um Array.";
-            }
-
-        } else {
-            return "Nenhum dado Informado.";
-        }
-
-    }
-
-    /**
-     * Normaliza os Dados
-     *
-     * @param Array $rede
-     * @return Boolean/String
-     */
-    private function normalizeResponse($rede) {
-
-        // Verifica se um valor foi informado.
-        if(isset($rede["response"])) {
-
-            // Checa se o valor de response é um Array
-            if(is_array($rede["response"])) {
-
-                // Armazena a quantidade de Saídas Esperadas.
-                $quantidade_saidas_esperadas = count($rede["response"]);
-
-                // Armazena a quantidade de Saídas da Rede
-                $quantidade_saidas = (count($rede["structure"]) -1);
-
-                if($quantidade_saidas_esperadas == $rede["structure"][$quantidade_saidas]) {
-
-                    // Armazena o index do primeiro Perceptron da Camada de Saída
-                    $index_saida = (array_sum($this->estrutura) - ($quantidade_saidas_esperadas - 1));
-                    
-                    // Percorre o Array de Saídas Esperadas
-                    for ($i = 0; $i < $quantidade_saidas_esperadas; $i++) {
-                        
-                        // Armazena os valores das Saídas Esperadas na Rede. 
-                        $this->saidas_esperadas[($index_saida + $i)] = $rede["response"][$i];
-                    }
-                    
-                    return true;
-
-                } else {
-                    return "A quantidade de Neurônios de Saída não são iguais a quantidade de Saídas Esperadas.";
-                }
-
-            } else {
-                return "Os dados informados não estão armazenados em um Array.";
-            }
-
-        } else {
-            return "Nenhum dado Informado.";
-        }
-    }
-
-    /**
-     * Normaliza os Dados
-     *
-     * @param Array $rede
-     * @return Boolean
-     */
-    private function normalizeError($rede) {
+        $return = true;
 
         // Verifica se outro valor foi informado e se é diferente do padrão.
-        if(isset($rede["error_learn"]) && $rede["error_learn"] != $this->taxa_aprendizagem) {
+        if(isset($error_learn) && $error_learn != $this->taxa_aprendizagem) {
 
             // Armazeno o novo valor.
-            $this->taxa_aprendizagem = $rede["error_learn"];
+            $this->taxa_aprendizagem = $error_learn;
         }
 
-        return true;
+        // Informo ao normalizador se a informação está OK
+        $this->normalize = Array (
+            "error_learn" => $return
+        );
     }
 
     /**
@@ -307,24 +382,28 @@ class NeuralNetwork {
      * @param Array $rede
      * @return Boolean/String
      */
-    private function normalizeWeight($rede) {
+    private function normalizeWeight($weight_variation) {
+
+        $return = true;
 
         // Verifica se outro valor foi informado e se é diferente do padrão.
-        if(isset($rede["weight_variation"]) && $rede["weight_variation"] != $this->variacao_peso) {
+        if(isset($weight_variation) && $weight_variation != $this->variacao_peso) {
 
             // Verifica se o valor informado é um Inteiro e se é maior que 0
-            if(is_integer($rede["weight_variation"]) && $rede["weight_variation"] > 0) {
+            if(is_integer($weight_variation) && $weight_variation > 0) {
 
                 // Armazeno o novo valor.
-                $this->variacao_peso = $rede["weight_variation"];
+                $this->variacao_peso = $weight_variation;
 
             } else {
-                return "O valor informado não é do tipo FLOAT ou é menor que 0.";
+                $return = "O valor informado não é do tipo FLOAT ou é menor que 0.";
             }
         }
 
-        return true;
-
+        // Informo ao normalizador se a informação está OK
+        $this->normalize = Array (
+            "weight_variation" => $return
+        );
     }
 
     /**
@@ -333,23 +412,28 @@ class NeuralNetwork {
      * @param Array $rede
      * @return Boolean/String
      */
-    private function normalizeBias($rede) {
+    private function normalizeBias($bias_variation) {
+
+        $return = true;
 
         // Verifica se outro valor foi informado e se é diferente do padrão.
-        if(isset($rede["bias_variation"]) && $rede["bias_variation"] != $this->variacao_peso) {
+        if(isset($bias_variation) && $bias_variation != $this->variacao_peso) {
 
             // Verifica se o valor informado é um Inteiro e se é maior que 0
-            if(is_integer($rede["bias_variation"]) && $rede["bias_variation"] > 0) {
+            if(is_integer($bias_variation) && $bias_variation > 0) {
 
                 // Armazeno o novo valor.
-                $this->variacao_bias = $rede["bias_variation"];
+                $this->variacao_bias = $bias_variation;
 
             } else {
-                return "O valor informado não é do tipo INTEGER ou é menor que 0.";
+                $return = "O valor informado não é do tipo INTEGER ou é menor que 0.";
             }
         }
 
-        return true;
+        // Informo ao normalizador se a informação está OK
+        $this->normalize = Array (
+            "bias_variation" => $return
+        );
 
     }
 
@@ -359,23 +443,28 @@ class NeuralNetwork {
      * @param Array $rede
      * @return Boolean/String
      */
-    private function normalizeErrorStop($rede) {
+    private function normalizeErrorStop($error) {
+
+        $return = true;
 
         // Verifica se outro valor foi informado e se é diferente do padrão.
-        if(isset($rede["error"]) && $rede["error"] != $this->stop_error) {
+        if(isset($error) && $error != $this->stop_error) {
 
             // Verifica se o valor informado é um Float e se é maior que 0
-            if(is_float($rede["error"]) && $rede["error"] > 0) {
+            if(is_float($error) && $error > 0) {
 
                 // Armazeno o valor.
-                $this->stop_error = $rede["error"];
+                $this->stop_error = $error;
 
             } else {
-                return "O valor informado não é do tipo FLOAT ou é menor que 0.";
+                $return = "O valor informado não é do tipo FLOAT ou é menor que 0.";
             }
         }
 
-        return true;
+        // Informo ao normalizador se a informação está OK
+        $this->normalize = Array (
+            "error" => $return
+        );
 
     }
 
@@ -385,7 +474,7 @@ class NeuralNetwork {
      *
      * @return Boolean/String
      */
-    private function normalizeAllData() {
+    private function normalizeAllData($type) {
 
         // Auxiliar para verificar se todos os dados estão corretos e no padrão.
         $continue_execution = true;
@@ -400,13 +489,26 @@ class NeuralNetwork {
              * Se o valor informado for diferente de true algum
              * dado está incorreto ou faltando.
              */
-            if($value !== true) {
+            if($value !== true && $type == "train") {
                 
                 // Define que o treino não pode ser executado.
                 $continue_execution = false;
 
                 // Mostra o Erro gerado
                 $error_mensage .= "Error in data '" . $key . "': " . $value . PHP_EOL;
+            }
+
+            if($value !== true && $type == "answer") {
+
+                if($key != "response") {
+                    
+                    // Define que o treino não pode ser executado.
+                    $continue_execution = false;
+    
+                    // Mostra o Erro gerado
+                    $error_mensage .= "Error in data '" . $key . "': " . $value . PHP_EOL;
+                }
+                
             }
         }
 
@@ -507,6 +609,54 @@ class NeuralNetwork {
     }
 
     /**
+     * Salva a resposta de cada trino da rede.
+     *
+     * @return Void
+     */
+    private function saveData() {
+
+        // Exporto somente os pesos e bias para salvar no BD
+        $response = $this->exportThisTrain();
+
+        // Guarda a chave de cada treino
+        $key = "";
+
+        // Contateno todas os valores de entrada para gerar a chave
+        foreach($this->entradas as $value) {
+            $key .= $value;
+        }
+
+        // Armazena a quantidade de Perceptrons na Camada de Saída
+        $fim = $this->estrutura[(count($this->estrutura) -1)];
+
+        /**
+         * Armazena a quantidade total de Perceptrons da Rede sem
+         * contar os Perceptrons da Camada de Saída
+         */
+        $total = (array_sum($this->estrutura) - $fim);
+
+        // Armezana a soma das saidas.
+        $sum = 0;
+
+        // Percorre o Array das Funções de Ativação
+        for($i = 1; $i <= $fim; $i++) {
+
+            // Somo todas as saídas
+            $sum += $this->ativacao["y" . ($total + $i)];
+        }
+
+        // Salvo a resposta no BD
+        $this->train_database[md5($key)] = Array(
+            "response" => $response,
+            "sum" => $sum
+        );
+
+        // Zero os pesos e bias para serem gerados novamente.
+        $this->pesos = Array();
+        $this->bias = Array();
+    }
+
+    /**
      * Inicializador de treinamento da Rede
      *
      * @return Void
@@ -514,7 +664,7 @@ class NeuralNetwork {
     public function train() {
 
         // Armazena o valor que define se os dados informados estão corretos.
-        $execute = $this->normalizeAllData();
+        $execute = $this->normalizeAllData("train");
         
         if($execute === true) {
                 
@@ -522,7 +672,7 @@ class NeuralNetwork {
              * Checa se os Pesos já foram informados ou se
              * precisa gera-los.
              */
-            if(!is_array($this->pesos)) {
+            if(!is_array($this->pesos) || count($this->pesos) == 0) {
                 $this->setRandWeight();
             }
             
@@ -530,7 +680,7 @@ class NeuralNetwork {
              * Checa se os Bias já foram informados ou se
              * precisa gera-los.
              */
-            if(!is_array($this->bias)) {
+            if(!is_array($this->bias) || count($this->bias) == 0) {
                 $this->setRandBias();
             }
             
@@ -568,7 +718,8 @@ class NeuralNetwork {
                     // Executa um novo treino com os valores atualizados.
                     $this->train();
 
-                    return true;
+                } else {
+                    $this->saveData();
                 }
 
             }
@@ -578,56 +729,100 @@ class NeuralNetwork {
         }
     }
 
-    /**
-     * Possibilita informar novos valores de Entrada para a Rede
-     * após ela já estar treinada.
-     *
-     * @param Array $entradas
-     * @return Array
-     */
-    public function setValues($entradas) {
-    
+    public function answerBinary() {
+
         // Armazena o valor que define se os dados informados estão corretos.
-        $execute = $this->normalizeAllData();
-                
+        $execute = $this->normalizeAllData("answer");
+                        
         if($execute === true) {
 
-            // Armazena os valores de Entrada
-            $this->entradas = $entradas;
-
-            // Executa o FeedFoward
-            $this->feedFoward();
-
-            // Calcula o Erro Total da Sáida
-            $this->errorSaida();
-
-            // 
+            // Armazena a saida da rede
             $saida = array();
 
-            // Armazena a quantidade de Perceptrons na Camada de Saída
-            $fim = $this->estrutura[(count($this->estrutura) -1)];
+            // Armazena a melhor resposta da rede
+            $best_response = 1;
 
-            /**
-             * Armazena a quantidade total de Perceptrons da Rede sem
-             * contar os Perceptrons da Camada de Saída
-             */
-            $total = (array_sum($this->estrutura) - $fim);
+            foreach($this->train_database as $value) {
 
-            // Percorre o Array das Funções de Ativação
-            for($i = 1; $i <= $fim; $i++) {
+                $is_the_best = false;
 
-                // Armazena a Saída dos Perceptrons de Saída
-                $saida[] = $this->ativacao["y" . ($total + $i)];
+                $this->pesos = $value["response"]["weigth"];
+                $this->bias = $value["response"]["bias"];
+
+                // Executa o FeedFoward
+                $this->feedFoward();
+
+                // Armazena a quantidade de Perceptrons na Camada de Saída
+                $fim = $this->estrutura[(count($this->estrutura) -1)];
+
+                /**
+                 * Armazena a quantidade total de Perceptrons da Rede sem
+                 * contar os Perceptrons da Camada de Saída
+                 */
+                $total = (array_sum($this->estrutura) - $fim);
+                
+                $aux = Array();
+                $sum = 0;
+                $big = 0;
+
+                // Percorre o Array das Funções de Ativação
+                for($i = 1; $i <= $fim; $i++) {
+
+                    $exit = $this->ativacao["y" . ($total + $i)];
+
+                    // Soma todos as saídas
+                    $sum += $exit;
+
+                    // Armazena a Saída dos Perceptrons de Saída
+                    $aux[] = $exit;
+
+                    if($exit > $big) {
+                        $big = $exit;
+                    }
+                }
+
+                $res = abs($sum - $value["sum"]);
+
+                // Verifica se essa resposta é melhor que a anterior
+                if($best_response >= $res) {
+                    $best_response = $res;
+                    $is_the_best = true;
+                }
+                
+                if($is_the_best) {
+                    $saida = $aux;
+                    //$saida["accuracy"] = round((($big * 100) / (1 - $this->stop_error)), 2) . "%";
+                    //$saida["epoch"] = $this->epoch;
+                }
+                
             }
             
-            $saida["epoch"] = $this->epoch;
-
             // Retorna as Saídas
             return $saida;
 
         } else {
             return $execute;
         }
+    }
+
+    /**
+     * Informa as entradas da rede.
+     *
+     * @param Array $entradas
+     * @return Array
+     */
+    public function setValues($entradas) {
+        $this->normalizeValues($entradas);
+    }
+
+    /**
+     * Informa a saída esperada da rede.
+     *
+     * @param Array $entradas
+     * @return Array
+     */
+    public function setResponse($saidas) {
+        $this->normalizeResponse($saidas);
     }
 
     /**
@@ -656,8 +851,11 @@ class NeuralNetwork {
                 // Percorre cada Perceptron da próxima Camada.
                 for($k = 0; $k < $this->estrutura[($i + 1)]; $k++) {
 
+                    // Gera um número aleatório
+                    $rand = (mt_rand(($this->variacao_peso * -1), $this->variacao_peso) / $this->variacao_peso);
+
                     // Executa o calculo randomico para os Pesos das Sinapses.
-                    $this->pesos["w" . $perceptrons . "-" . ($k + $start_hide_layer)] = (mt_rand(1, 100) / $this->variacao_peso);
+                    $this->pesos["w" . $perceptrons . "-" . ($k + $start_hide_layer)] = $rand;
                 }
 
                 // Passo para o próximo Perceptron da camada atual.
@@ -689,8 +887,10 @@ class NeuralNetwork {
         // Percorre as Camadas
         for($i = 0; $i < $quantidade_camadas; $i++) {
 
+            $rand = (mt_rand(($this->variacao_bias * -1), $this->variacao_bias) / $this->variacao_bias);
+
             // Executa o calculo randomico para os Pesos das Camadas.
-            $this->bias["b" . ($i + 1)] = (mt_rand(0, 100) / $this->variacao_bias);
+            $this->bias["b" . ($i + 1)] = $rand;
         }
     }
 
@@ -1038,24 +1238,41 @@ class NeuralNetwork {
     }
 
     /**
-     * Exporta os dados necessários para executar a Rede
-     * numa próxima vez sem precisar treina-la.
+     * Exporta os dados necessários para armazenagem.
      *
      * @return Void
      */
-    public function exportTrain() {
+    private function exportThisTrain() {
 
         // Armazena os dados já treinados pela Rede
         $export = Array(
-
-            // Estrutura
-            "structure" => $this->estrutura,
 
             // Pesos já reduzidos.
             "weigth" => $this->pesos,
 
             // Bias Gerados
-            "bias" => $this->bias,
+            "bias" => $this->bias
+        );
+
+        return $export;
+    }
+
+    /**
+     * Exporta os dados necessários para executar a Rede
+     * numa próxima vez sem precisar treina-la.
+     *
+     * @return Void
+     */
+    public function exportData() {
+
+        // Armazena os dados já treinados pela Rede
+        $export = Array(
+
+            // Estrutura
+            "rede" => $this->rede,
+
+            // Database
+            "database" => $this->train_database,
 
             // Épocas
             "epoch" => $this->epoch,
@@ -1070,7 +1287,7 @@ class NeuralNetwork {
      * @param Serialize $train
      * @return Void
      */
-    public function importTrain($train) {
+    public function importData($train) {
 
         // Reseto a Rede
         $this->resetRede();
@@ -1079,18 +1296,12 @@ class NeuralNetwork {
         $import = unserialize($train);
 
         // Verifica se existem os dados das Estruturas.
-        if(isset($import["structure"])) {
-            $this->estrutura = $import["structure"];
+        if(isset($import["rede"])) {
+            $this->setConfiguration($import["rede"]);
         }
 
-        // Verifica se existem os dados dos Pesos.
-        if(isset($import["weigth"])) {
-            $this->pesos = $import["weigth"];
-        }
-
-        // Verifica se existem os dados dos Bias.
-        if(isset($import["bias"])) {
-            $this->bias = $import["bias"];
+        if(isset($import["database"])) {
+            $this->train_database = $import["database"];
         }
 
         // Verifica se existem os dados dos Epoch.
@@ -1132,10 +1343,10 @@ class NeuralNetwork {
         $this->estrutura = Array();
         $this->entradas = Array();
         $this->saidas_esperadas = Array();
-        $this->taxa_aprendizagem = 0.00001;
+        $this->taxa_aprendizagem = 0.01;
         $this->variacao_peso = 100;
         $this->variacao_bias = 100;
-        $this->stop_error = 0.0000001;
+        $this->stop_error = 0.001;
         $this->perceptrons = Array();
         $this->pesos = Array();
         $this->novos_pesos = Array();
@@ -1143,6 +1354,9 @@ class NeuralNetwork {
         $this->ativacao = Array();
         $this->gradient = Array();
         $this->error = Array();
+        $this->memory_limit = "";
+        $this->rede = Array();
+        $this->train_database = Array();
         $this->epoch = 0;
     }
 
@@ -1153,16 +1367,45 @@ class NeuralNetwork {
      */
     public function debug() {
         echo "<pre>";
+        
+        echo "Erro Total: \n"; 
+        print_r($this->error);
 
-        print_r("Erro Total: " . $this->error);
-        print_r("Função de Ativação: " . $this->ativacao);
-        print_r("Perceptrons: " . $this->perceptrons);
-        print_r("Bias: " . $this->bias);
-        print_r("Pesos: " . $this->pesos);
-        print_r("Novos Pesos: " . $this->novos_pesos);
-        print_r("Gradient Descent: " . $this->gradient);
-        print_r("Saídas Esperadas: " . $this->saidas_esperadas);
-        print_r("Épocas: " . $this->epoch);
+        echo "Função de Ativação: ";
+        print_r($this->ativacao);
+
+        echo "Perceptrons: ";
+        print_r($this->perceptrons);
+
+        echo "Bias: ";
+        print_r($this->bias);
+
+        echo "Pesos: ";
+        print_r($this->pesos);
+
+        echo "Novos Pesos: ";
+        print_r($this->novos_pesos);
+
+        echo "Gradient Descent: ";
+        print_r($this->gradient);
+
+        echo "Entradas: ";
+        print_r($this->entradas);
+
+        echo "Saídas Esperadas: ";
+        print_r($this->saidas_esperadas);
+
+        echo "Memória Alocada: ";
+        print_r($this->memory_limit);
+
+        echo "Configurações: ";
+        print_r($this->rede);
+
+        echo "Database: ";
+        print_r($this->train_database);
+
+        echo "Épocas: ";
+        print_r($this->epoch);
 
         echo "</pre>";
     }
