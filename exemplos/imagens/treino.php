@@ -62,10 +62,12 @@ foreach($images as $value) {
 
 // Respostas esperadas com base em cada imagem.
 $response = Array(
+    // Resultados para Calibri
     Array(1, 0, 0, 0, 0, 0, 1), // A
     Array(1, 0, 0, 0, 0, 1, 0), // B
     Array(1, 0, 0, 0, 0, 1, 1), // C
     Array(1, 0, 0, 0, 1, 0, 0), // D
+    // Resultados para Segoe
     Array(1, 0, 0, 0, 0, 0, 1), // A
     Array(1, 0, 0, 0, 0, 1, 0), // B
     Array(1, 0, 0, 0, 0, 1, 1), // C
