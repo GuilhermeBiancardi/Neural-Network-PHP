@@ -110,7 +110,7 @@ foreach($nn->answerBinary() as $key => $value) {
  * valores e substituiremos um dos valores 0.1 por 0.2 e zeraremos
  * outro, segundo nossa lógica 0.2 equivaleria ao número 2 exemplo:
  * 
- * 0 + 0.1 + 0.1 + 0.1 + 0.2 = 0+1+1+1+2 = 5.
+ * 0 + 0.1 + 0.1 + 0.1 + 0.2 = 0 + 1 + 1 + 1 + 2 = 5.
  * 
  * Será que a rede vai convergir certo?
  */
