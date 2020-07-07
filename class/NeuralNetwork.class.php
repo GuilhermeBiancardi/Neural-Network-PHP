@@ -564,7 +564,7 @@ class NeuralNetwork {
      * Obs2: Esse array deve ser passado a Rede
      * serializado.
      *
-     * @param Serialize $serialize
+     * @param String $serialize
      * @return Void
      */
     public function setWeight($serialize) {
@@ -601,7 +601,7 @@ class NeuralNetwork {
      * Obs2: Esse array deve ser passado a Rede
      * serializado.
      * 
-     * @param Serialize $serialize
+     * @param String $serialize
      * @return Void
      */
     public function setBias($serialize) {
@@ -1284,7 +1284,7 @@ class NeuralNetwork {
     /**
      * Importa os dados para a Rede
      *
-     * @param Serialize $train
+     * @param String $train
      * @return Void
      */
     public function importData($train) {
