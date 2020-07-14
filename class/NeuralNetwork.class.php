@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Rede neural supervisionada
+ */
+
 class NeuralNetwork {
 
     /**
@@ -24,11 +28,11 @@ class NeuralNetwork {
     private $entradas;
 
     /**
-     * Armazena as saidas esperadas.
+     * Armazena as saídas esperadas.
      *
      * @var Array
      */
-    private $saidas_esperadas;
+    private $expected_returns;
 
     /**
      * Taxa de Aprendizado da Rede.
@@ -40,31 +44,31 @@ class NeuralNetwork {
     /**
      * Armazena o número que definirá o calculo
      * da variante do Peso de casa sinapse,
-     * é aconselhavel que esse número seja multiplo
+     * é aconselhável que esse número seja múltiplo
      * de 10. sendo 10 equivalente a pesos de 
      * 0.1 a 0.9, 100 equivalente a 0.01 a 0.99 e
      * assim por diante.
      *
      * @var Integer
      */
-    private $variacao_peso = 100;
+    private $variation_weight = 100;
 
     /**
      * Armazena o número que definirá o calculo
      * da variante do Bias de casa camada,
-     * é aconselhavel que esse número seja multiplo
+     * é aconselhável que esse número seja múltiplo
      * de 10. sendo 10 equivalente a pesos de 
      * 0.1 a 0.9, 100 equivalente a 0.01 a 0.99 e
      * assim por diante.
      *
      * @var Integer
      */
-    private $variacao_bias = 100;
+    private $variation_bias = 100;
 
     /**
      * Armazena o número que define quando a
      * Rede deve parar, ou seja, estamos dizendo
-     * a Rede quando o erro retornado é aceitavel
+     * a Rede quando o erro retornado é aceitável
      * para nosso propósito.
      *
      * @var Float
@@ -107,18 +111,18 @@ class NeuralNetwork {
      *
      * @var [type]
      */
-    private $ativacao;
+    private $activation;
 
     /**
      * Armazena o Erro Total da Rede após o 
-     * FedFoward.
+     * FedForward.
      *
      * @var Array
      */
     private $error;
 
     /**
-     * Armazena o Gradiant Descent de cada Perceptron
+     * Armazena o Gradient Descent de cada Perceptron
      * efetuados no Backpropagation
      *
      * @var Array
@@ -127,7 +131,7 @@ class NeuralNetwork {
 
     /**
      * Armazena a quantidade de Épocas (Vezes em que a Rede
-     * executou o FeedFoward e Backpropagation).
+     * executou o FeedForward e Backpropagation).
      *
      * @var Integer
      */
@@ -185,13 +189,13 @@ class NeuralNetwork {
         if(isset($rede["weight_variation"])) {
             $this->normalizeWeight($rede["weight_variation"]);
         } else {
-            $this->normalizeWeight($this->variacao_peso);
+            $this->normalizeWeight($this->variation_weight);
         }
 
         if(isset($rede["bias_variation"])) {
             $this->normalizeBias($rede["bias_variation"]);
         } else {
-            $this->normalizeBias($this->variacao_bias);
+            $this->normalizeBias($this->variation_bias);
         }
 
         if(isset($rede["error"])) {
@@ -318,21 +322,21 @@ class NeuralNetwork {
             if(is_array($response)) {
 
                 // Armazena a quantidade de Saídas Esperadas.
-                $quantidade_saidas_esperadas = count($response);
+                $total_expected_returns = count($response);
 
                 // Armazena a quantidade de Saídas da Rede
-                $quantidade_saidas = (count($this->estrutura) -1);
+                $total_returns = (count($this->estrutura) -1);
 
-                if($quantidade_saidas_esperadas == $this->estrutura[$quantidade_saidas]) {
+                if($total_expected_returns == $this->estrutura[$total_returns]) {
 
                     // Armazena o index do primeiro Perceptron da Camada de Saída
-                    $index_saida = (array_sum($this->estrutura) - ($quantidade_saidas_esperadas - 1));
+                    $index_return = (array_sum($this->estrutura) - ($total_expected_returns - 1));
                     
                     // Percorre o Array de Saídas Esperadas
-                    for ($i = 0; $i < $quantidade_saidas_esperadas; $i++) {
+                    for ($i = 0; $i < $total_expected_returns; $i++) {
                         
                         // Armazena os valores das Saídas Esperadas na Rede. 
-                        $this->saidas_esperadas[($index_saida + $i)] = $response[$i];
+                        $this->expected_returns[($index_return + $i)] = $response[$i];
                     }
 
                 } else {
@@ -387,13 +391,13 @@ class NeuralNetwork {
         $return = true;
 
         // Verifica se outro valor foi informado e se é diferente do padrão.
-        if(isset($weight_variation) && $weight_variation != $this->variacao_peso) {
+        if(isset($weight_variation) && $weight_variation != $this->variation_weight) {
 
             // Verifica se o valor informado é um Inteiro e se é maior que 0
             if(is_integer($weight_variation) && $weight_variation > 0) {
 
                 // Armazeno o novo valor.
-                $this->variacao_peso = $weight_variation;
+                $this->variation_weight = $weight_variation;
 
             } else {
                 $return = "O valor informado não é do tipo FLOAT ou é menor que 0.";
@@ -417,13 +421,13 @@ class NeuralNetwork {
         $return = true;
 
         // Verifica se outro valor foi informado e se é diferente do padrão.
-        if(isset($bias_variation) && $bias_variation != $this->variacao_peso) {
+        if(isset($bias_variation) && $bias_variation != $this->variation_weight) {
 
             // Verifica se o valor informado é um Inteiro e se é maior que 0
             if(is_integer($bias_variation) && $bias_variation > 0) {
 
                 // Armazeno o novo valor.
-                $this->variacao_bias = $bias_variation;
+                $this->variation_bias = $bias_variation;
 
             } else {
                 $return = "O valor informado não é do tipo INTEGER ou é menor que 0.";
@@ -480,7 +484,7 @@ class NeuralNetwork {
         $continue_execution = true;
 
         // Armazena as mensagens de Erro.
-        $error_mensage = "";
+        $error_message = "";
 
         // Percorre o Array normalize
         foreach($this->normalize as $key => $value) {
@@ -495,7 +499,7 @@ class NeuralNetwork {
                 $continue_execution = false;
 
                 // Mostra o Erro gerado
-                $error_mensage .= "Error in data '" . $key . "': " . $value . PHP_EOL;
+                $error_message .= "Error in data '" . $key . "': " . $value . PHP_EOL;
             }
 
             if($value !== true && $type == "answer") {
@@ -506,7 +510,7 @@ class NeuralNetwork {
                     $continue_execution = false;
     
                     // Mostra o Erro gerado
-                    $error_mensage .= "Error in data '" . $key . "': " . $value . PHP_EOL;
+                    $error_message .= "Error in data '" . $key . "': " . $value . PHP_EOL;
                 }
                 
             }
@@ -514,7 +518,7 @@ class NeuralNetwork {
 
         // Retorna se a execução deve continuar.
         if($continue_execution !== true) {
-            return $error_mensage;
+            return $error_message;
         } else {
             return true;
         }
@@ -542,7 +546,7 @@ class NeuralNetwork {
      *    / \   /
      *  2 --- 4
      * 
-     * Então a Sinpase que liga o Perceptron
+     * Então a Sinapse que liga o Perceptron
      * 1 ao Perceptron 3 recebera o nome w1-3
      * logo temos que informar os pesos da
      * seguinte forma
@@ -562,7 +566,7 @@ class NeuralNetwork {
      * );
      * 
      * Obs2: Esse array deve ser passado a Rede
-     * serializado.
+     * serialized.
      *
      * @param String $serialize
      * @return Void
@@ -580,7 +584,7 @@ class NeuralNetwork {
      * Cada coluna representa uma camada da
      * Rede, onde a camada de entrada será 0
      * e a próxima será 1 e assim sucessivamente
-     * até a camada de saida.
+     * até a camada de saída.
      * 
      *   _0_       _1_
      *  | 1 | --- | 3 |
@@ -599,7 +603,7 @@ class NeuralNetwork {
      * );
      *
      * Obs2: Esse array deve ser passado a Rede
-     * serializado.
+     * serialized.
      * 
      * @param String $serialize
      * @return Void
@@ -621,7 +625,7 @@ class NeuralNetwork {
         // Guarda a chave de cada treino
         $key = "";
 
-        // Contateno todas os valores de entrada para gerar a chave
+        // Concateno todas os valores de entrada para gerar a chave
         foreach($this->entradas as $value) {
             $key .= $value;
         }
@@ -635,14 +639,14 @@ class NeuralNetwork {
          */
         $total = (array_sum($this->estrutura) - $fim);
 
-        // Armezana a soma das saidas.
+        // Armazena a soma das saídas.
         $sum = 0;
 
         // Percorre o Array das Funções de Ativação
         for($i = 1; $i <= $fim; $i++) {
 
             // Somo todas as saídas
-            $sum += $this->ativacao["y" . ($total + $i)];
+            $sum += $this->activation["y" . ($total + $i)];
         }
 
         // Salvo a resposta no BD
@@ -690,12 +694,12 @@ class NeuralNetwork {
             // Verifico se existem Camadas Ocultas
             if($quantidade_hidden_layers > 0) {
 
-                // Executo o processo de FeedFoward
-                $this->feedFoward();
+                // Executo o processo de FeedForward
+                $this->feedForward();
                 // Calculo o erro de Saída. 
-                $this->errorSaida();
+                $this->errorReturn();
                 
-                // Verifico se o erro de saída é aceitavel para parar a execução
+                // Verifico se o erro de saída é aceitável para parar a execução
                 if($this->error["total"] > $this->stop_error) {
 
                     // Calculo o Gradient das Sinapses da Camada de Saída.
@@ -703,16 +707,16 @@ class NeuralNetwork {
                     
                     // Calculo o Gradient Descent das Sinapses de cada Camada Oculta
                     for($i = $quantidade_hidden_layers; $i > 0 ; $i--) {
-                        $this->calculateSinpasesHiddenLayer($i);
+                        $this->calculateSinapsesHiddenLayer($i);
                     }
 
                     /**
                      * Contador de Épocas, para saber quantas vezes a Rede
-                     * executou o FeedFoward e Backpropagation.
+                     * executou o FeedForward e Backpropagation.
                      */
                     $this->epoch++;
 
-                    // Reseta alguns valores para a rede fazer o calculo novamente.
+                    // Reset alguns valores para a rede fazer o calculo novamente.
                     $this->restartEpoch();
 
                     // Executa um novo treino com os valores atualizados.
@@ -736,8 +740,8 @@ class NeuralNetwork {
                         
         if($execute === true) {
 
-            // Armazena a saida da rede
-            $saida = array();
+            // Armazena a saída da rede
+            $return = array();
 
             // Armazena a melhor resposta da rede
             $best_response = 1;
@@ -746,11 +750,11 @@ class NeuralNetwork {
 
                 $is_the_best = false;
 
-                $this->pesos = $value["response"]["weigth"];
+                $this->pesos = $value["response"]["weight"];
                 $this->bias = $value["response"]["bias"];
 
-                // Executa o FeedFoward
-                $this->feedFoward();
+                // Executa o FeedForward
+                $this->feedForward();
 
                 // Armazena a quantidade de Perceptrons na Camada de Saída
                 $fim = $this->estrutura[(count($this->estrutura) -1)];
@@ -768,7 +772,7 @@ class NeuralNetwork {
                 // Percorre o Array das Funções de Ativação
                 for($i = 1; $i <= $fim; $i++) {
 
-                    $exit = $this->ativacao["y" . ($total + $i)];
+                    $exit = $this->activation["y" . ($total + $i)];
 
                     // Soma todos as saídas
                     $sum += $exit;
@@ -790,15 +794,15 @@ class NeuralNetwork {
                 }
                 
                 if($is_the_best) {
-                    $saida = $aux;
-                    //$saida["accuracy"] = round((($big * 100) / (1 - $this->stop_error)), 2) . "%";
-                    //$saida["epoch"] = $this->epoch;
+                    $return = $aux;
+                    //$return["accuracy"] = round((($big * 100) / (1 - $this->stop_error)), 2) . "%";
+                    //$return["epoch"] = $this->epoch;
                 }
                 
             }
             
             // Retorna as Saídas
-            return $saida;
+            return $return;
 
         } else {
             return $execute;
@@ -821,8 +825,8 @@ class NeuralNetwork {
      * @param Array $entradas
      * @return Array
      */
-    public function setResponse($saidas) {
-        $this->normalizeResponse($saidas);
+    public function setResponse($returns) {
+        $this->normalizeResponse($returns);
     }
 
     /**
@@ -852,9 +856,9 @@ class NeuralNetwork {
                 for($k = 0; $k < $this->estrutura[($i + 1)]; $k++) {
 
                     // Gera um número aleatório
-                    $rand = (mt_rand(($this->variacao_peso * -1), $this->variacao_peso) / $this->variacao_peso);
+                    $rand = (mt_rand(($this->variation_weight * -1), $this->variation_weight) / $this->variation_weight);
 
-                    // Executa o calculo randomico para os Pesos das Sinapses.
+                    // Executa o calculo randômico para os Pesos das Sinapses.
                     $this->pesos["w" . $perceptrons . "-" . ($k + $start_hide_layer)] = $rand;
                 }
 
@@ -887,19 +891,19 @@ class NeuralNetwork {
         // Percorre as Camadas
         for($i = 0; $i < $quantidade_camadas; $i++) {
 
-            $rand = (mt_rand(($this->variacao_bias * -1), $this->variacao_bias) / $this->variacao_bias);
+            $rand = (mt_rand(($this->variation_bias * -1), $this->variation_bias) / $this->variation_bias);
 
-            // Executa o calculo randomico para os Pesos das Camadas.
+            // Executa o calculo randômico para os Pesos das Camadas.
             $this->bias["b" . ($i + 1)] = $rand;
         }
     }
 
     /**
-     * Executa o FeedFoward da Rede
+     * Executa o FeedForward da Rede
      *
      * @return Void
      */
-    private function feedFoward() {
+    private function feedForward() {
 
         // Pega a quantidade de Perceptrons da primeira Camada Oculta
         $start_hide_layer = $this->estrutura[0] + 1;
@@ -935,7 +939,7 @@ class NeuralNetwork {
                  * Popula o Array que contém os valores dos 
                  * Perceptrons Ativados com o valor 0.
                  */ 
-                $this->ativacao["y" . ($start_hide_layer + $j)] = 0;
+                $this->activation["y" . ($start_hide_layer + $j)] = 0;
 
                 // Percorre o Array de Estrutura na Camada anterior a de Execução.
                 for($k = 0; $k < $this->estrutura[$i]; $k++) {
@@ -961,15 +965,15 @@ class NeuralNetwork {
                 $this->perceptrons["y" . ($start_hide_layer + $j)] += ($this->bias["b" . $camadas] * 1);
 
                 // Armazena o valor do Perceptron após ser Ativado no Array de Ativação.
-                $this->ativacao["y" . ($start_hide_layer + $j)] = $this->sigmoid($this->perceptrons["y" . ($start_hide_layer + $j)]);
+                $this->activation["y" . ($start_hide_layer + $j)] = $this->sigmoide($this->perceptrons["y" . ($start_hide_layer + $j)]);
 
                 // Armazena o resultado da Ativação no Array auxiliar.
-                $aux_entradas[$j] = $this->ativacao["y" . ($start_hide_layer + $j)];
+                $aux_entradas[$j] = $this->activation["y" . ($start_hide_layer + $j)];
             }
 
             /**
              * Define que as entradas agora serão os valores calculados
-             * atualmente da Camada Oculta para seguir com o FeedFoward
+             * atualmente da Camada Oculta para seguir com o FeedForward
              */
             $entradas = $aux_entradas;
 
@@ -990,7 +994,7 @@ class NeuralNetwork {
      * @param Float $number
      * @return Float
      */
-    private function sigmoid($number) {
+    private function sigmoide($number) {
         return (1 / (1 + exp(-$number)));
     }
 
@@ -1000,42 +1004,42 @@ class NeuralNetwork {
      * @param Float $number
      * @return Float
      */
-    private function derivada_sigmoid($number) {
+    private function derivada_sigmoide($number) {
         return ($number * (1 - $number));
     }
 
     /**
-     * Calcula o Erro de Saída Total encontado na
+     * Calcula o Erro de Saída Total encontrado na
      * Camada de Saída com base nas Saídas Esperadas.
      *
      * @return Void
      */
-    private function errorSaida() {
+    private function errorReturn() {
 
         // Armazena a quantidade de Saídas Esperadas
-        $quantidade_saidas = count($this->saidas_esperadas);
+        $total_returns = count($this->expected_returns);
 
         // Armazena o index do Perceptron de Saída a ser calculado.
-        $index_saida = (array_sum($this->estrutura) - ($quantidade_saidas - 1));
+        $index_return = (array_sum($this->estrutura) - ($total_returns - 1));
 
         // Popula o Erro Total com o valor 0.
         $total = 0;
 
         // Percorre todos os Perceptrons de Saída
-        for($i = 0; $i < $quantidade_saidas; $i++) {
+        for($i = 0; $i < $total_returns; $i++) {
 
             /**
              * Calcula o Erro desse Perceptron:
              * 
-             * ((1/2) * ((Saida Esperada Relativa ao Perceptron atual) - Saída Obtida do Perceptron atual) Elevado a 2).
+             * ((1/2) * ((Saída Esperada Relativa ao Perceptron atual) - Saída Obtida do Perceptron atual) Elevado a 2).
              */
-            $operacao = ((1 / 2) * (($this->saidas_esperadas[($index_saida + $i)] - $this->ativacao["y" . ($index_saida + $i)]) ** 2));
+            $operation = ((1 / 2) * (($this->expected_returns[($index_return + $i)] - $this->activation["y" . ($index_return + $i)]) ** 2));
 
             // Armazena o Erro desse Perceptron.
-            $this->error["e" . ($index_saida + $i)] = $operacao;
+            $this->error["e" . ($index_return + $i)] = $operation;
 
             // Soma o Erro desse Perceptron com os valores anteriores.
-            $total += $operacao;
+            $total += $operation;
         }
 
         // Armazena o Erro Total.
@@ -1043,14 +1047,14 @@ class NeuralNetwork {
     }
 
     /**
-     * Calcula o quanto o valor da Sinpse atual
+     * Calcula o quanto o valor da Sinapse atual
      * contribuiu para o Erro Total.
      *
      * @param Float $weight
      * @param Float $gradient
      * @return Float
      */
-    private function errorAjusts($weight, $gradient) {
+    private function errorAdjust($weight, $gradient) {
         return ($weight - ($this->taxa_aprendizagem * $gradient));
     }
 
@@ -1069,38 +1073,38 @@ class NeuralNetwork {
             if(preg_match("/w[0-9]*-" . $w_id . "/", $key)) {
 
                 // Calcula a Derivada do Erro em relação ao Perceptron atual.
-                $derivadaDoErroSobreOPerceptron = (($this->saidas_esperadas[$w_id] * -1) + $this->ativacao["y" . $w_id]);
+                $derivadaDoErroSobreOPerceptron = (($this->expected_returns[$w_id] * -1) + $this->activation["y" . $w_id]);
 
                 // Calcula a Derivada da Função de Ativação do Perceptron atual.
-                $derivadaDaFuncaoDeAtivacao = $this->derivada_sigmoid($this->ativacao["y" . $w_id]);
+                $derivationFunctionActivation = $this->derivada_sigmoide($this->activation["y" . $w_id]);
 
                 // Retorna o valor do Perceptron da Camada anterior interligado ao Perceptron atual
                 preg_match("/w([0-9]*)-" . $w_id . "/", $key, $perceptronAnterior);
 
                 // Calcula a Derivada do Perceptron relativo a Sinapse interligada a ele.
-                $derivadaDoPerceptronSobreASinapse = $this->ativacao["y" . $perceptronAnterior[1]];
+                $derivadaDoPerceptronSobreASinapse = $this->activation["y" . $perceptronAnterior[1]];
 
                 /**
                  * Calcula o Gradient Descent da Derivada da Função de Ativação
                  * do Perceptron atual multiplicado pela Derivada do Perceptron
                  * relativo a Sinapse ligada a ele.
                  */
-                $gradient = $derivadaDoErroSobreOPerceptron * $derivadaDaFuncaoDeAtivacao * $derivadaDoPerceptronSobreASinapse;
+                $gradient = $derivadaDoErroSobreOPerceptron * $derivationFunctionActivation * $derivadaDoPerceptronSobreASinapse;
 
                 /**
                  * Armazena o valor da Derivada do Erro relativo ao Perceptron atual
                  * multiplicado pela Derivada da Função de Ativação do Perceptron atual
-                 * multiplicado pelo Peso da Sinapse inteligada ao Perceptron atual. 
+                 * multiplicado pelo Peso da Sinapse interligada ao Perceptron atual. 
                  */ 
                 $this->gradient["g" . $perceptronAnterior[1] . "-" . $w_id] = Array(
-                    "D(E(Y))/D(F(Y))" => (($derivadaDoErroSobreOPerceptron * $derivadaDaFuncaoDeAtivacao) * $this->pesos[$key]),
+                    "D(E(Y))/D(F(Y))" => (($derivadaDoErroSobreOPerceptron * $derivationFunctionActivation) * $this->pesos[$key]),
                 );
 
                 // Armazena o valor do Erro da Sinapse atual relativo ao Erro Total.
-                $ajust = $this->errorAjusts($value, $gradient);
+                $adjust = $this->errorAdjust($value, $gradient);
 
                 // Armazena o novo peso da Sinapse atual relativa ao Perceptron atual.
-                $this->novos_pesos[$key] = $ajust;
+                $this->novos_pesos[$key] = $adjust;
             }
         }
     }
@@ -1112,7 +1116,7 @@ class NeuralNetwork {
      */
     private function calculateLastSinapses() {
 
-        // Armazena a quantidade de Sinpases interligadas aos Perceptrons de Saída.
+        // Armazena a quantidade de Sinapses interligadas aos Perceptrons de Saída.
         $sinapses_atualizar = (array_sum($this->estrutura) - $this->estrutura[(count($this->estrutura) - 1)] +1);
 
         // Armazena o total de Sinapses da Rede
@@ -1145,32 +1149,32 @@ class NeuralNetwork {
                 preg_match("/w([0-9]*)-" . $w_id . "/", $key, $perceptronAnterior);
                 
                 // Armazena a quantidade de Perceptrons da Camada seguinte.
-                $proximos_perceptrons = $this->estrutura[($index +1)];
+                $next_perceptrons = $this->estrutura[($index +1)];
 
                 // Popula o index de Saída com o valor 0.
-                $index_saida = 0;
+                $index_return = 0;
 
                 // Percorre as Camadas da Rede.
                 for($i = 0; $i <= $index; $i++) {
 
                     // Soma a quantidade de Perceptrons de cada Camada com o valor já existente.
-                    $index_saida += $this->estrutura[$i];
+                    $index_return += $this->estrutura[$i];
                 }
 
                 // Armazena o index do último Perceptron da Camada atual.
-                $index_fim = ($index_saida + $proximos_perceptrons);
+                $index_fim = ($index_return + $next_perceptrons);
                 
                 /**
-                 * Popula a Derivada do Erro Total em relção a Função
+                 * Popula a Derivada do Erro Total em relação a Função
                  * de Ativação do Perceptron com o valor 0.
                  */
                 $derivadaErroTotalSobreFaDoPerceptron = 0;
 
                 // Percorre o Array de Gradient da Camada seguinte.
-                for($i = ($index_saida + 1); $i <= $index_fim; $i++) {
+                for($i = ($index_return + 1); $i <= $index_fim; $i++) {
 
                     /**
-                     * Soma a Derivada do Erro Total em relção a Função
+                     * Soma a Derivada do Erro Total em relação a Função
                      * de Ativação do Perceptron atual com o valor pré
                      * existente.
                      */
@@ -1178,13 +1182,13 @@ class NeuralNetwork {
                 }
 
                 // Armazena a Derivada da Função de Ativação do Perceptron atual.
-                $derivadaDaFaDoPerceptron = $this->derivada_sigmoid($this->ativacao["y" . $w_id]);
+                $derivadaDaFaDoPerceptron = $this->derivada_sigmoide($this->activation["y" . $w_id]);
 
                 // Armazena a Derivada do Perceptron atual relativo a Sinapse
-                $derivadaDoPerceptronsSobreASinapse = $this->ativacao["y" . $w_id];
+                $derivadaDoPerceptronsSobreASinapse = $this->activation["y" . $w_id];
 
                 /**
-                 * Calcula o Gradient Descent da Derivada do Erro Total em relção a Função
+                 * Calcula o Gradient Descent da Derivada do Erro Total em relação a Função
                  * de Ativação do Perceptron atual multiplicado pela Derivada da Função de
                  * Ativação do Perceptron atual multiplicado pela Derivada do Perceptron
                  * relativo a Sinapse.
@@ -1203,10 +1207,10 @@ class NeuralNetwork {
                 );
 
                 // Armazena o valor do Erro da Sinapse atual relativo ao Erro Total.
-                $ajust = $this->errorAjusts($value, $gradient);
+                $adjust = $this->errorAdjust($value, $gradient);
 
                 // Armazena o novo peso da Sinapse atual relativa ao Perceptron atual.
-                $this->novos_pesos[$key] = $ajust;
+                $this->novos_pesos[$key] = $adjust;
             }
         }
     }
@@ -1217,9 +1221,9 @@ class NeuralNetwork {
      * @param Integer $index
      * @return Void
      */
-    private function calculateSinpasesHiddenLayer($index) {
+    private function calculateSinapsesHiddenLayer($index) {
 
-        // Pupula a quantidade de Perceptrons da Camada Oculta atual com o valor 0.
+        // Popula a quantidade de Perceptrons da Camada Oculta atual com o valor 0.
         $perceptrons_hidden_layers = 0;
 
         // Percorre as Camadas da Rede
@@ -1248,7 +1252,7 @@ class NeuralNetwork {
         $export = Array(
 
             // Pesos já reduzidos.
-            "weigth" => $this->pesos,
+            "weight" => $this->pesos,
 
             // Bias Gerados
             "bias" => $this->bias
@@ -1289,7 +1293,7 @@ class NeuralNetwork {
      */
     public function importData($train) {
 
-        // Reseto a Rede
+        // Reset da Rede
         $this->resetRede();
 
         // Armazena os dados de treino da Rede
@@ -1334,7 +1338,7 @@ class NeuralNetwork {
     }
 
     /**
-     * Reseta toda a Rede para o padão
+     * Reset de toda a Rede para o padrão
      *
      * @return Void
      */
@@ -1342,16 +1346,16 @@ class NeuralNetwork {
         $this->normalize = Array();
         $this->estrutura = Array();
         $this->entradas = Array();
-        $this->saidas_esperadas = Array();
+        $this->expected_returns = Array();
         $this->taxa_aprendizagem = 0.01;
-        $this->variacao_peso = 100;
-        $this->variacao_bias = 100;
+        $this->variation_weight = 100;
+        $this->variation_bias = 100;
         $this->stop_error = 0.001;
         $this->perceptrons = Array();
         $this->pesos = Array();
         $this->novos_pesos = Array();
         $this->bias = Array();
-        $this->ativacao = Array();
+        $this->activation = Array();
         $this->gradient = Array();
         $this->error = Array();
         $this->memory_limit = "";
@@ -1372,7 +1376,7 @@ class NeuralNetwork {
         print_r($this->error);
 
         echo "Função de Ativação: ";
-        print_r($this->ativacao);
+        print_r($this->activation);
 
         echo "Perceptrons: ";
         print_r($this->perceptrons);
@@ -1393,7 +1397,7 @@ class NeuralNetwork {
         print_r($this->entradas);
 
         echo "Saídas Esperadas: ";
-        print_r($this->saidas_esperadas);
+        print_r($this->expected_returns);
 
         echo "Memória Alocada: ";
         print_r($this->memory_limit);
