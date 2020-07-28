@@ -640,19 +640,19 @@ class NeuralNetwork {
         $total = (array_sum($this->estrutura) - $fim);
 
         // Armazena a soma das saídas.
-        $sum = 0;
+        $exit = Array();
 
         // Percorre o Array das Funções de Ativação
         for($i = 1; $i <= $fim; $i++) {
 
             // Somo todas as saídas
-            $sum += $this->activation["y" . ($total + $i)];
+            $exit[$i] = $this->activation["y" . ($total + $i)];
         }
 
         // Salvo a resposta no BD
         $this->train_database[md5($key)] = Array(
             "response" => $response,
-            "sum" => $sum
+            "exit" => $exit
         );
 
         // Zero os pesos e bias para serem gerados novamente.
@@ -775,7 +775,7 @@ class NeuralNetwork {
                     $exit = $this->activation["y" . ($total + $i)];
 
                     // Soma todos as saídas
-                    $sum += $exit;
+                    $sum += ($exit - $value["exit"][$i]);
 
                     // Armazena a Saída dos Perceptrons de Saída
                     $aux[] = $exit;
@@ -785,10 +785,10 @@ class NeuralNetwork {
                     }
                 }
 
-                $res = abs($sum - $value["sum"]);
+                $res = abs($sum);
 
                 // Verifica se essa resposta é melhor que a anterior
-                if($best_response >= $res) {
+                if($best_response > $res) {
                     $best_response = $res;
                     $is_the_best = true;
                 }

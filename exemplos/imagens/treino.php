@@ -3,10 +3,10 @@
 /**
  * Neste arquivo iremos treinar a rede com base
  * em algumas imagens de letras, iremos testar
- * se a rede consegue indentificar imagens!
+ * se a rede consegue identificar imagens!
  * 
  * Iremos informar 81 entradas que equivale a cada
- * pixel da imagem (cada imagem é 9x9) e 7 saidas
+ * pixel da imagem (cada imagem é 9x9) e 7 saídas
  * equivalentes a cada caractere binário correspondente
  * a letra contida na imagem ex:
  * 
@@ -84,7 +84,7 @@ foreach($values as $key => $value) {
 }
 
 /**
- * Varificamos se a rede aprendeu cada letra corretamente,
+ * Verificamos se a rede aprendeu cada letra corretamente,
  * a resposta esperada é a sequencia de A,B,C,D,A,B,C,D.
  */ 
 foreach($values as $value) {
