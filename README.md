@@ -23,10 +23,10 @@ Nada de especial na chamada:
 A rede pode ser alterada para atender várias necessidades, por isso deve-se configura-la de acordo:
 
 ```php
-    $configuracoes = Array(
+    $configuration = Array(
         // Parâmetros
     );
-    $nn->setConfiguration($configuracoes);
+    $nn->setConfiguration($configuration);
 ```
 
 ## Parâmetros de Configuração:
@@ -34,7 +34,7 @@ A rede pode ser alterada para atender várias necessidades, por isso deve-se con
 Nosso **Array** de configurações necessita dos seguintes parâmetros (falaremos de cada um separadamente):
 
 ```php
-    $configuracoes = Array(
+    $configuration = Array(
         // Required: Estrutura da Nossa Rede
         "structure" => Array(2,2,2),
         
@@ -56,7 +56,7 @@ Nosso **Array** de configurações necessita dos seguintes parâmetros (falaremo
         // Optional: Variação dos Bias
         "bias_variation" => 100,
 
-        // Optional: Tamanho da memória alocada pelo PHP para execuçao
+        // Optional: Tamanho da memória alocada pelo PHP para execução
         "memory_limit" => "512M"
     );
 ```
@@ -69,7 +69,7 @@ Nosso **Array** de configurações necessita dos seguintes parâmetros (falaremo
 
 **error_learn:** Define a taxa de aprendizado da nossa rede, quanto menor for o número mais preciso será o resultado (Diminuir o número pode custar mais recursos computacionais como memória RAM e irá demorar mais para a rede ser treinada). Esse campo não é Obrigatório e seu valor padrão é 0.01
 
-**error:** Podemos informar uma taxa de aceitação para que a rede pare ao chegar a um erro aceitavel, a rede nunca irá chegar no valor esperado e sim se aproximar cada vez mais dele, esse valor determina a quantidade aproximada que a rede deve aceitar para parar a execução. Esse campo não é Obrigatório e seu valor padrão é 0.0001
+**error:** Podemos informar uma taxa de aceitação para que a rede pare ao chegar a um erro aceitável, a rede nunca irá chegar no valor esperado e sim se aproximar cada vez mais dele, esse valor determina a quantidade aproximada que a rede deve aceitar para parar a execução. Esse campo não é Obrigatório e seu valor padrão é 0.0001
 
 **weight_variation:** Número que determinará a variação de pesos que serão gerados para as sinapses, ele deve estar entre +1 e +X. Esse campo não é Obrigatório e seu valor padrão é 100.
 
@@ -99,7 +99,7 @@ A rede ficaria assim:
  2 --- 4
  ```
 
-Então a Sinpase que liga o Perceptron
+Então a Sinapse que liga o Perceptron
 1 ao Perceptron 3 recebera o nome w1-3
 logo temos que informar os pesos da
 seguinte forma:
@@ -136,7 +136,7 @@ seguinte forma:
     );
 ```
 
-Esse array deve ser passado a rede serializado:
+Esse array deve ser passado a rede "serialized":
 
 ```php
     $nn->setWeight(serialize($pesos));
@@ -168,7 +168,7 @@ Então deve-se informar os Bias da seguinte forma:
     );
 ```
 
-Esse array deve ser passado a rede serializado.
+Esse array deve ser passado a rede "serialized".
 
 ```php
     $nn->setBias(serialize($bias));
@@ -182,7 +182,7 @@ Após definir todos os valores basta chamar a função de treinamento, se todos 
 
     $nn = new NeuralNetwork();
 
-    $configuracoes = Array(
+    $configuration = Array(
 
         "structure" => Array(2,2,1),
         "values" => Array(0.464, 0.482),
@@ -191,7 +191,7 @@ Após definir todos os valores basta chamar a função de treinamento, se todos 
 
     );
 
-    $nn->setConfiguration($configuracoes);
+    $nn->setConfiguration($configuration);
 
     $pesos = Array(
 
@@ -241,13 +241,20 @@ Após a rede estar treinada é possível inserir novos valores para que ela dete
 
 ## Exportando o treino
 
-Em alguns casos a rede pode demorar muito para treinar, e ter que treina-la sempre que precisarmos de alguma resposta pode se tornar algo custoso, uma solução é exportar os dados de treino para que possa ser utilziado posteriormente, isso agiliza muito o processo, pois a rede não precisará ser treinada:
+Em alguns casos a rede pode demorar muito para treinar, e ter que treina-la sempre que precisarmos de alguma resposta pode se tornar algo custoso, uma solução é exportar os dados de treino para que possa ser utilizado posteriormente, isso agiliza muito o processo, pois a rede não precisará ser treinada:
 
 ```php
 
     // Processo de treino...
 
-    $export = $nn->exportTrain();
+    /**
+     * Existem 3 opções predefinidas para exportação:
+     * $nn->exportData(ESTRUTURA, DATABASE_INTERNA. EPOCH);
+     * todas definidas com TRUE, caso não queira exportar
+     * alguns desses dados basta colocar FALSE, ou deixar
+     * vazio para retornar todos.
+     */
+    $export = $nn->exportData();
 ```
 
 ## Importando dados de treinos
@@ -258,7 +265,7 @@ Com os dados de treino devidamente guardados, podemos inseri-los na rede, assim 
     $export = "DADOS_EXPORTADOS_DA_REDE";
 
     $nn = new NeuralNetwork();
-    $nn->importTrain($export);
+    $nn->importData($export);
 
     // Valores a serem testados
     $valores = Array($x, $y, $z, etc...);
@@ -271,7 +278,104 @@ Com os dados de treino devidamente guardados, podemos inseri-los na rede, assim 
 
 ```
 
-## Debugando os dados
+## Redes Grandes
+
+Sabemos que uma rede com milhões de dados fica impossível a armazenagem dos dados na memória interna da rede, por isso é recomendado que esses dados estejam em uma database. É possível coletar esses dados para armazenagem externa.
+
+```php
+    // Dados da rede
+    $rede = Array (
+        "structure" => Array(3, 3, 2),
+        "error" => 0.0001,
+        "error_learn" => 0.01,
+        // "memory_limit" => "4096M"
+    );
+
+    // Adiciono os dados da rede.
+    $nn->setConfiguration($rede);
+
+    // Valores de entrada
+    $values = Array(
+        Array(0.12, 0.13, 0.14),
+        Array(0.15, 0.16, 0.17),
+        Array(0.18, 0.19, 0.20),
+    );
+
+    // Respostas
+    $result = Array(
+        Array(0.11, 0.12),
+        Array(0.13, 0.14),
+        Array(0.15, 0.16),
+    );
+
+    // Inicia-se o processo de input dos dados na rede para treino
+    foreach($values as $key => $value) {
+
+        // Informo os valores
+        $nn->setValues($value);
+
+        // Informo as respostas correspondentes
+        $nn->setResponse($result[$key]);
+        
+        // Inicio o treino
+        $nn->train();
+
+        // Rede treinada, exporto apenas a estrutura da rede
+        $structure = $nn->exportData(true, false, false);
+
+        // Exporto apenas os dados do treino
+        $response = $nn->exportData(false, true, false);
+
+        // AQUI VAI O PROCESSO DE GRAVAÇÃO DOS DADOS NO BD
+
+        // Ao importar os dados de estrutura para a rede ela será zerada.
+        $nn->importData($structure);
+
+    }
+
+```
+
+## Enviando os dados armazenados no BD
+
+Com os dados armazenados em um banco de dados, é necessário passa-los para a rede quando for preciso encontrar um novo valor nos dados de treino, com a base de dados interna, basta apenas utilizar o "answerBinary()" que a rede já traz o melhor resultado, mas com uma base de dados externa a
+comparação desses dados deve ser manual.
+
+```php
+    
+    // PROCESSO DE CAPTURA DOS DADOS NO BANCO
+
+    $structure = "DADOS DE ESTRUTURA VIDO DO BD";
+    $dados = "DADOS DE TREINO VINDO DO BD";
+
+    // Informo a estrutura da rede
+    $nn->importData($structure);
+
+    $resposta_mais_proxima = 1;
+    $resultado = Array();
+
+    // Dados para classificar
+    $data = Array(0.1, 0.2, 0.3);
+
+    foreach($dados as $key => $value) {
+
+        // Informo os valores de verificação
+        $nn->setValues($data);
+
+        // Pego a resposta da rede no treino informado
+        $resposta = $nn->getResponse($value);
+
+        if($resposta["total"] < $resposta_mais_proxima) {
+            $resposta_mais_proxima = $resposta["total"];
+            $resultado = $resposta;
+        }
+    }
+
+    // Resposta da rede
+    $resposta
+
+```
+
+## Debug dos dados
 
 Mostra algumas informações contidas na rede:
 

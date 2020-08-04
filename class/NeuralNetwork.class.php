@@ -700,7 +700,7 @@ class NeuralNetwork {
                 $this->errorReturn();
                 
                 // Verifico se o erro de saída é aceitável para parar a execução
-                if($this->error["total"] > $this->stop_error) {
+                if($this->error["total"] >= $this->stop_error) {
 
                     // Calculo o Gradient das Sinapses da Camada de Saída.
                     $this->calculateLastSinapses();
@@ -733,6 +733,13 @@ class NeuralNetwork {
         }
     }
 
+    /**
+     * Retorna o valor aprendido mais próximo em relação ao dado de entrada.
+     * Obs: Essa função funciona apenas se existirem dados armazenados na
+     * base de dados interna do rede.
+     *
+     * @return Float/Bool
+     */
     public function answerBinary() {
 
         // Armazena o valor que define se os dados informados estão corretos.
@@ -795,10 +802,67 @@ class NeuralNetwork {
                 
                 if($is_the_best) {
                     $return = $aux;
-                    //$return["accuracy"] = round((($big * 100) / (1 - $this->stop_error)), 2) . "%";
-                    //$return["epoch"] = $this->epoch;
                 }
                 
+            }
+            
+            // Retorna o resultado
+            return $return;
+
+        } else {
+            return $execute;
+        }
+    }
+
+    /**
+     * Retorna a saída da rede com base na entrada informada.
+     * 
+     * @param Array $data
+     * @return Array
+     */
+    public function getResponse($data) {
+
+        // Armazena o valor que define se os dados informados estão corretos.
+        $execute = $this->normalizeAllData("answer");
+                        
+        if($execute === true) {
+
+            // Armazena a saída da rede
+            $return = array();
+
+            foreach($data as $value) {
+
+                $this->pesos = $value["response"]["weight"];
+                $this->bias = $value["response"]["bias"];
+
+                // Executa o FeedForward
+                $this->feedForward();
+
+                // Armazena a quantidade de Perceptrons na Camada de Saída
+                $fim = $this->estrutura[(count($this->estrutura) -1)];
+
+                /**
+                 * Armazena a quantidade total de Perceptrons da Rede sem
+                 * contar os Perceptrons da Camada de Saída
+                 */
+                $total = (array_sum($this->estrutura) - $fim);
+
+                $sum = 0;
+
+                // Percorre o Array das Funções de Ativação
+                for($i = 1; $i <= $fim; $i++) {
+
+                    $exit = $this->activation["y" . ($total + $i)];
+
+                    // Soma todos as saídas
+                    $sum += ($exit - $value["exit"][$i]);
+
+                    $return = Array(
+                        "response" => $exit,
+                        "total" => $sum,
+                    );
+                }
+
             }
             
             // Retorna as Saídas
@@ -1029,11 +1093,18 @@ class NeuralNetwork {
         for($i = 0; $i < $total_returns; $i++) {
 
             /**
-             * Calcula o Erro desse Perceptron:
+             * Calcula o Erro total das Saídas:
              * 
              * ((1/2) * ((Saída Esperada Relativa ao Perceptron atual) - Saída Obtida do Perceptron atual) Elevado a 2).
              */
-            $operation = ((1 / 2) * (($this->expected_returns[($index_return + $i)] - $this->activation["y" . ($index_return + $i)]) ** 2));
+            // $operation = ((1 / 2) * (($this->expected_returns[($index_return + $i)] - $this->activation["y" . ($index_return + $i)]) ** 2));
+
+            /**
+             * Calcula o Erro total das Saídas:
+             * 
+             * Método otimizado! VALOR_ABSOLUTO((Saída Esperada Relativa ao Perceptron atual) - Saída Obtida do Perceptron atual))
+             */
+            $operation = abs(($this->expected_returns[($index_return + $i)] - $this->activation["y" . ($index_return + $i)]));
 
             // Armazena o Erro desse Perceptron.
             $this->error["e" . ($index_return + $i)] = $operation;
@@ -1267,20 +1338,25 @@ class NeuralNetwork {
      *
      * @return Void
      */
-    public function exportData() {
+    public function exportData($structure = true, $database = true, $epoch = true) {
 
         // Armazena os dados já treinados pela Rede
-        $export = Array(
+        $export = Array();
 
-            // Estrutura
-            "rede" => $this->rede,
+        // Estrutura
+        if($structure) {
+            $export["rede"] = $this->rede;
+        }
 
-            // Database
-            "database" => $this->train_database,
+        // Database interna
+        if($database) {
+            $export["database"] = $this->train_database;
+        }
 
-            // Épocas
-            "epoch" => $this->epoch,
-        );
+        // Épocas totais
+        if($epoch) {
+            $export["epoch"] = $this->epoch;
+        }
 
         return serialize($export);
     }
