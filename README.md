@@ -344,11 +344,27 @@ comparação desses dados deve ser manual.
     
     // PROCESSO DE CAPTURA DOS DADOS NO BANCO
 
+    /**
+     * Assumindo que os dados do BD venham desta forma:
+     * Array(
+     *     0 => "DADOS EXPORTADOS DA REDE pelo: $nn->exportData(true, false, false);",
+     * );
+     */
     $structure = "DADOS DE ESTRUTURA VIDO DO BD";
+
+    /**
+     * Assumindo que os dados do BD venham desta forma:
+     * Array(
+     *     0 => "DADOS EXPORTADOS DA REDE pelo: $nn->exportData(false, true, false)",
+     *     1 => "DADOS EXPORTADOS DA REDE pelo: $nn->exportData(false, true, false)",
+     *     2 => "DADOS EXPORTADOS DA REDE pelo: $nn->exportData(false, true, false)",
+     *     etc...
+     * );
+     */
     $dados = "DADOS DE TREINO VINDO DO BD";
 
     // Informo a estrutura da rede
-    $nn->importData($structure);
+    $nn->importData(unserialize($structure[0]));
 
     $resposta_mais_proxima = 1;
     $resultado = Array();
