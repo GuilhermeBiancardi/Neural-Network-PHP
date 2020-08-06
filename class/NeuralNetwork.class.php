@@ -817,7 +817,7 @@ class NeuralNetwork {
     /**
      * Retorna a saída da rede com base na entrada informada.
      * 
-     * @param Array $data
+     * @param String $data
      * @return Array
      */
     public function getResponse($data) {
@@ -830,7 +830,9 @@ class NeuralNetwork {
             // Armazena a saída da rede
             $return = array();
 
-            foreach($data as $value) {
+            $data = unserialize($data);
+
+            foreach($data["database"] as $value) {
 
                 $this->pesos = $value["response"]["weight"];
                 $this->bias = $value["response"]["bias"];
