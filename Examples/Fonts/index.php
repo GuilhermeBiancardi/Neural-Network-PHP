@@ -1,5 +1,8 @@
 <?php
 
+include_once "../../class/ImageData.class.php";
+include_once "../../Neural/Structure.php";
+
 /**
  * Neste arquivo iremos treinar a rede com base
  * em algumas imagens de letras, iremos testar
@@ -19,35 +22,23 @@
  * da letra.
  */
 
-include_once "../../class/ImageData.class.php";
-include_once "../../class/NeuralNetwork.class.php";
-
 $img = new ImageData();
-$nn = new NeuralNetwork();
+$nn = new BackPropagation();
 
-$file = "../../arquivos/image.data";
-
-$rede = Array (
-    "structure" => Array(81, 15, 7),
-    "error" => 0.01,
-    "error_learn" => 0.01,
-    "memory_limit" => "4096M"
-);
-
-$nn->setConfiguration($rede);
-
-// Tipos de fontes a serem treinadas
 $images = Array(
+
     // Fonte Calibri
     "../../images/calibri_a.png",
     "../../images/calibri_b.png",
     "../../images/calibri_c.png",
     "../../images/calibri_d.png",
+
     // Fonte Segoe
     "../../images/segoe_a.png",
     "../../images/segoe_b.png",
     "../../images/segoe_c.png",
     "../../images/segoe_d.png",
+
 );
 
 $values = Array();
@@ -64,48 +55,62 @@ foreach($images as $value) {
 
 // Respostas esperadas com base em cada imagem.
 $response = Array(
+
     // Resultados para Calibri
     Array(1, 0, 0, 0, 0, 0, 1), // A
     Array(1, 0, 0, 0, 0, 1, 0), // B
     Array(1, 0, 0, 0, 0, 1, 1), // C
     Array(1, 0, 0, 0, 1, 0, 0), // D
+
     // Resultados para Segoe
     Array(1, 0, 0, 0, 0, 0, 1), // A
     Array(1, 0, 0, 0, 0, 1, 0), // B
     Array(1, 0, 0, 0, 0, 1, 1), // C
     Array(1, 0, 0, 0, 1, 0, 0), // D
+
 );
 
+$nn->prepareStructure([81,30,7], [new Sigmoid(), new Sigmoid()], new Bias());
+
 // Treino a rede
-foreach($values as $key => $value) {
-    $nn->setValues($values[$key]);
-    $nn->setResponse($response[$key]);    
-    $nn->train();
-}
-
-/**
- * Verificamos se a rede aprendeu cada letra corretamente,
- * a resposta esperada é a sequencia de A,B,C,D,A,B,C,D.
- */ 
-foreach($values as $value) {
-    $nn->setValues($value);
-    $char = "";
-    foreach($nn->answerBinary() as $v) {
-        $char .= round($v);
+for($loop = 0; $loop < 1000; $loop++) {
+    for($i = 0; $i < count($values); $i++) {
+        $nn->setInputs($values[$i]);
+        $nn->setExpectedResponse($response[$i]);    
+        $nn->train();
     }
-    echo "Resposta da Rede: " . chr(bindec($char)) . PHP_EOL;
 }
 
+// Imagens não treinadas a serem testadas
+$images_new = Array(
+    "A" => "../../images/lucida_a.png",
+    "B" => "../../images/lucida_b.png",
+    "C" => "../../images/lucida_c.png",
+    "D" => "../../images/lucida_d.png",
+);
+
+$values_new = Array();
+
 /**
- * Como o processo de treino demora irei exportar o resultado
- * do treino e salva-lo em um arquivo, para não precisar treinar
- * a rede novamente quando for testa-la.
+ * Popula o array de entrada com os valores de cada imagem
+ * com o auxilio da classe ImagemDada que nos dara as
+ * informações de cada pixel das imagens.
  */
+foreach($images_new as $key => $value) {
+    $img->setImage($value);
+    $values_new[$key] = $img->getImageInfo();
+}
 
-$data = fopen($file, "w");
-
-fwrite($data, $nn->exportData());
-
-fclose($data);
+// Resultado obtido:
+foreach($values_new as $key => $value) {
+    echo "Correspondente a letra: " . $key . PHP_EOL;
+    $nn->setInputs($value);
+    $output = $nn->getResponse();
+    $bin = "";
+    foreach($output as $saida) {
+        $bin .= round($saida[0]);
+    }
+    echo chr(bindec($bin)) . PHP_EOL;
+}
 
 ?>
