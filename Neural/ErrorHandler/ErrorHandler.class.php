@@ -99,6 +99,19 @@ class ErrorHandler {
     }
 
     /**
+     * Verify if param is a bool value
+     *
+     * @param number $value
+     * @param string $functionName
+     * @return void
+     */
+    public function isBool($value, $functionName = "Undefined") : void {
+        if(!is_bool($value)) {
+            $this->setError("The function:{" . $functionName . "}:param:{'" . gettype($value) . ":" . $this->paramIsArray($value) . "'} is not a boolean value.");
+        }
+    }
+
+    /**
      * Verify if param is a array value
      *
      * @param array $value

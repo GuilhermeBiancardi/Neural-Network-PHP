@@ -1,6 +1,6 @@
 <?php
 
-class Layers extends Node {
+class Layers extends Weight {
 
     /**
      * @var array
@@ -83,7 +83,7 @@ class Layers extends Node {
                     $this->layers[$layerIndex]["bias"][][] = $bias->getRandBias();
                 }
             } else {
-                $this->layers[$layerIndex]["bias"] = 0;
+                $this->layers[$layerIndex]["bias"][][] = 0;
             }
 
             $this->layers[$layerIndex]["value"][$nodeIndex][] = $this->setNodeValue(0);

@@ -8,16 +8,6 @@ class Synapses extends Layers {
     private $synapses = [];
 
     /**
-     * @var int
-     */
-    private $minRandValue = -100000000;
-
-    /**
-     * @var int
-     */
-    private $maxRandValue = 1000000000;
-
-    /**
      * Get the synapses
      *
      * @return array
@@ -34,38 +24,6 @@ class Synapses extends Layers {
     public function setSynapses($synapses) : void {
         $this->isArray($synapses, __FUNCTION__);
         $this->synapses = $synapses;
-    }
-
-    /**
-     * Set the Min Value to Rand Weight
-     *
-     * @param int $minValue
-     * @return void
-     */
-    public function setMinRandWeight($minValue) : void {
-        $this->isInteger($minValue, __FUNCTION__);
-        $this->minRandValue = $minValue;
-    }
-
-    /**
-     * Set the Max Value to Rand Weight
-     *
-     * @param int $maxValue
-     * @return void
-     */
-    public function setMaxRandWeight($maxValue) : void {
-        $this->isInteger($maxValue, __FUNCTION__);
-        $this->maxRandValue = $maxValue;
-    }
-    
-    /**
-     * Generate random weight
-     *
-     * @return float
-     */
-    private function getWeight() : float {
-        $randValue = ((((float) rand()/(float) getrandmax()) *2) -1);
-        return $randValue;
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-include_once "../../Neural/Structure.php";
+include_once "../../../Neural/Structure.php";
 
 $nn = new BackPropagation();
 

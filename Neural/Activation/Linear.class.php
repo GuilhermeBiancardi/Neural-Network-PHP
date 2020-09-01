@@ -1,6 +1,6 @@
 <?php
 
-class Sigmoid extends ErrorHandler{
+class Linear extends ErrorHandler{
 
     /**
      * Linear

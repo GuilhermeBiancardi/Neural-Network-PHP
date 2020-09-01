@@ -84,15 +84,15 @@ class BackPropagation extends MultiLayerPerceptron {
      * Prepare Structure of Multi Layer Perceptron
      *
      * @param array $layers
-     * @param array/bool $activation
-     * @param object/bool $bias
+     * @param array $activation
+     * @param object $bias
      * @return void
      */
-    public function prepareStructure($layers, $activation = false, $bias = false) : void {
+    public function prepareStructure($layers, $activation, $bias) : void {
         $this->isArray($layers, __FUNCTION__);
         $this->amountLayers($layers, __FUNCTION__);
-        $activation ? $this->isArray($activation, __FUNCTION__) : "";
-        $bias ? $this->isObject($bias, __FUNCTION__) : "";
+        $this->isArray($activation, __FUNCTION__);
+        $this->isObject($bias, __FUNCTION__);
         $this->generateLayers($layers, $activation, $bias);
         $this->generateSynapses();
         $this->setPopulateLayers($this->getLayers());

@@ -1,7 +1,7 @@
 <?php
 
-include_once "../../class/ImageData.class.php";
-include_once "../../Neural/Structure.php";
+include_once "../../../Class/ImageData.class.php";
+include_once "../../../Neural/Structure.php";
 
 /**
  * Neste arquivo iremos treinar a rede com base
@@ -28,16 +28,16 @@ $nn = new BackPropagation();
 $images = Array(
 
     // Fonte Calibri
-    "../../images/calibri_a.png",
-    "../../images/calibri_b.png",
-    "../../images/calibri_c.png",
-    "../../images/calibri_d.png",
+    "../../../images/calibri_a.png",
+    "../../../images/calibri_b.png",
+    "../../../images/calibri_c.png",
+    "../../../images/calibri_d.png",
 
     // Fonte Segoe
-    "../../images/segoe_a.png",
-    "../../images/segoe_b.png",
-    "../../images/segoe_c.png",
-    "../../images/segoe_d.png",
+    "../../../images/segoe_a.png",
+    "../../../images/segoe_b.png",
+    "../../../images/segoe_c.png",
+    "../../../images/segoe_d.png",
 
 );
 
@@ -83,10 +83,10 @@ for($loop = 0; $loop < 1000; $loop++) {
 
 // Imagens não treinadas a serem testadas
 $images_new = Array(
-    "A" => "../../images/lucida_a.png",
-    "B" => "../../images/lucida_b.png",
-    "C" => "../../images/lucida_c.png",
-    "D" => "../../images/lucida_d.png",
+    "A" => "../../../images/lucida_a.png",
+    "B" => "../../../images/lucida_b.png",
+    "C" => "../../../images/lucida_c.png",
+    "D" => "../../../images/lucida_d.png",
 );
 
 $values_new = Array();
@@ -104,8 +104,10 @@ foreach($images_new as $key => $value) {
 // Resultado obtido:
 foreach($values_new as $key => $value) {
     echo "Correspondente a letra: " . $key . PHP_EOL;
+    
     $nn->setInputs($value);
     $output = $nn->getResponse();
+
     $bin = "";
     foreach($output as $saida) {
         $bin .= round($saida[0]);

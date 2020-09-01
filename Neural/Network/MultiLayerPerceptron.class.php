@@ -71,6 +71,16 @@ class MultiLayerPerceptron extends Synapses {
     }
 
     /**
+     * Execute the Feed Forward
+     *
+     * @return void
+     */
+    public function feedForward() : void {
+        $this->setInputLayerNodesValues();
+        $this->regressionLinear();
+    }
+
+    /**
      * Set the Nodes Values in Input Layer
      *
      * @return void
@@ -83,16 +93,6 @@ class MultiLayerPerceptron extends Synapses {
                 $this->populateLayers[0]["value"][$inputLayerKey][0] = 0;
             }
         }
-    }
-
-    /**
-     * Execute the Feed Forward
-     *
-     * @return void
-     */
-    public function feedForward() : void {
-        $this->setInputLayerNodesValues();
-        $this->regressionLinear();
     }
 
     /**

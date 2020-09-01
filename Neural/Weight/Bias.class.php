@@ -5,38 +5,44 @@ class Bias extends ErrorHandler {
     /**
      * @var int
      */
-    private $minValue;
+    private $minRandValue = -1000000;
 
     /**
      * @var int
      */
-    private $maxValue;
-    
-    /**
-     * @var int
-     */
-    private $normalize;
-    
-    /**
-     * @var float 
-     */
-    private $bias;
+    private $maxRandValue = 1000000;
 
-    public function __construct($minValue = 1, $maxValue = 100) {
+    /**
+     * Set the Min Value to Rand Bias
+     *
+     * @param int $minValue
+     * @return void
+     */
+    public function setMinRandBias($minValue) : void {
         $this->isInteger($minValue, __FUNCTION__);
-        $this->isInteger($maxValue, __FUNCTION__);
-        $this->minValue = $minValue;
-        $this->maxValue = $maxValue;
-        $this->normalize = ($maxValue * 10);
+        $this->minRandValue = $minValue;
     }
-    
+
     /**
-     * Get de Rand Bias
+     * Set the Max Value to Rand Bias
+     *
+     * @param int $maxValue
+     * @return void
+     */
+    public function setMaxRandBias($maxValue) : void {
+        $this->isInteger($maxValue, __FUNCTION__);
+        $this->maxRandValue = $maxValue;
+    }
+
+    /**
+     * Generate random Bias
+     * 
+     * ((((float) rand() / (float) getrandmax()) *2) -1);
      *
      * @return float
      */
     public function getRandBias() : float {
-        $randValue = ((((float) rand()/(float) getrandmax()) *2) -1);
+        $randValue = (mt_rand($this->minRandValue, $this->maxRandValue) / $this->maxRandValue);
         return $randValue;
     }
 
