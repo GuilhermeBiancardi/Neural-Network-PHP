@@ -1,6 +1,11 @@
 <?php
 declare (strict_types = 1);
 
+// Load Composer autoloader if available (for Rindow, etc.)
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
+
 require_once __DIR__ . '/src/Helper/Matrix.php';
 require_once __DIR__ . '/src/Helper/Initializer.php';
 require_once __DIR__ . '/src/Activation/ActivationInterface.php';

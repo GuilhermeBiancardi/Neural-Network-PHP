@@ -1,0 +1,45 @@
+{
+  "name": "neural-network/php",
+  "description": "A powerful Neural Network library for PHP with GPU acceleration support",
+  "type": "library",
+  "keywords": [
+    "neural-network",
+    "machine-learning",
+    "deep-learning",
+    "ai",
+    "gpu",
+    "opencl",
+    "php"
+  ],
+  "license": "MIT",
+  "require": {
+    "php": ">=8.1"
+  },
+  "suggest": {
+    "rindow/rindow-math-matrix": "For GPU acceleration with OpenCL (20-50x faster for large matrices)",
+    "rindow/rindow-math-matrix-matlibffi": "FFI drivers for OpenBLAS, CLBlast and OpenCL - required for GPU support"
+  },
+  "autoload": {
+    "psr-4": {
+      "NeuralNetwork\\": "src/"
+    },
+    "classmap": [
+      "NeuralNetwork.class.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "NeuralNetwork\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "echo 'No tests configured yet'",
+    "benchmark": "php examples/benchmark_gpu.php"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}

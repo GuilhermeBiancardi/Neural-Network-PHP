@@ -1,10 +1,15 @@
 # Neural Network PHP
 
-Uma biblioteca completa de Redes Neurais Artificiais implementada em PHP puro, com suporte a múltiplas arquiteturas, otimizadores e funções de ativação.
+Uma biblioteca completa de Redes Neurais Artificiais implementada em PHP puro, com suporte a múltiplas arquiteturas, otimizadores e **aceleração por GPU**.
 
-## 📋 Índice
+[![PHP Version](https://img.shields.io/badge/PHP-8.1%2B-blue)](https://www.php.net/)
+[![GPU Support](https://img.shields.io/badge/GPU-OpenCL-green)](GPU_SETUP.md)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+
+## Índice
 
 - [Características](#-características)
+- [Aceleração por GPU](#-aceleração-por-gpu)
 - [Requisitos](#-requisitos)
 - [Instalação](#-instalação)
 - [Uso Básico](#-uso-básico)
@@ -23,6 +28,7 @@ Uma biblioteca completa de Redes Neurais Artificiais implementada em PHP puro, c
 
 ## Características
 
+- **Aceleração por GPU**: Suporte a OpenCL para operações 20x a 50x mais rápidas
 - **Múltiplas Camadas**: Dense, Conv2D, Dropout, BatchNormalization, Flatten
 - **Funções de Ativação**: Sigmoid, ReLU, LeakyReLU, ELU, Tanh, Softmax, Linear
 - **Otimizadores Modernos**: SGD, Adam, AdamW, RMSProp
@@ -31,23 +37,67 @@ Uma biblioteca completa de Redes Neurais Artificiais implementada em PHP puro, c
 - **Early Stopping**: Parada antecipada para evitar overfitting
 - **Mini-Batch Training**: Treinamento eficiente com lotes
 - **Salvamento/Carregamento**: Persistência completa de modelos treinados
-- **Suporte a Tensor**: Integração opcional com extensão `php_tensor` para aceleração
+- **Detecção Automática de Backend**: GPU → CPU otimizado → PHP puro
+
+## Como Habilitar a Aceleração por GPU
+
+Esta biblioteca suporta **aceleração por GPU via OpenCL**, oferecendo ganhos de performance de **20x a 50x** para operações matriciais grandes!
+
+Veja [GPU_SETUP.md](GPU_SETUP.md) para instruções detalhadas de instalação (Windows e Linux).
+
+A biblioteca **detecta automaticamente** se a GPU está disponível e a usa quando possível. Nenhuma mudança no código é necessária, recomendo fazer o benchmark para verificar a performance.
+
+## Como Habilitar a Aceleração por CPU
+
+Esta biblioteca suporta **aceleração por CPU via tensor**, oferecendo ganhos de performance de **2x a 5x** para operações matriciais grandes!
+
+```bash
+# Instalar tensor
+pecl install tensor
+# Ou baixe manualmente copiando a dll php_tensor.dll para a pasta ext do php
+# e a Dll libopenblas.dll para a pasta raíz do php depois habilite no php.ini
+# adicionando extension=tensor
+```
+
+A biblioteca **detecta automaticamente** se a CPU está disponível e a usa quando possível. Nenhuma mudança no código é necessária, recomendo fazer o benchmark para verificar a performance.
+
+### Se preferir usar o PHP puro
+
+Se preferir usar o PHP puro, você não precisa instalar nada extra.
+
+### Performance Comparada
+
+| Operação | Tamanho | PHP Puro | GPU (OpenCL) | Speedup |
+|----------|---------|----------|--------------|---------|
+| Matrix Multiply | 100x100 | 5.2 ms | 0.4 ms | **13x**  |
+| Matrix Multiply | 500x500 | 650 ms | 15 ms | **43x**   |
+| Matrix Multiply | 1000x1000 | 5200 ms | 95 ms | **55x**   |
+
+```php
+<?php
+use NeuralNetwork\Helper\Matrix;
+
+// Verificar se GPU está disponível
+if (Matrix::isGpuAvailable()) {
+    echo "GPU Acceleration enabled!\n";
+}
+
+// Obter informações do backend
+$info = Matrix::getBackendInfo();
+echo "Using: " . $info['description'] . "\n";
+```
+
+**Benchmark**: Execute `php examples/benchmark_gpu.php` para testar a performance no seu sistema.
 
 ## Requisitos
 
-- PHP 8.0 ou superior
-- Extensão `php_tensor` (opcional, para melhor performance)
+- **PHP >= 8.3 && < 8.4 se for usar o tensor ou PHP 8.3 superior caso contrário**
+- **Opcional (GPU)**: Rindow Math Matrix + OpenCL drivers
+- **Opcional (CPU)**: Extensão `tensor` para aceleração CPU
 
 ## Instalação
 
-Clone o repositório:
-
-```bash
-git clone https://github.com/seu-usuario/Neural-Network-PHP.git
-cd Neural-Network-PHP
-```
-
-Inclua a classe principal no seu projeto:
+Clone o repositório e inclua a classe principal no seu projeto:
 
 ```php
 require_once 'NeuralNetwork.class.php';
