@@ -21,7 +21,7 @@ Uma biblioteca completa de Redes Neurais Artificiais implementada em PHP puro, c
 - [Contribuindo](#-contribuindo)
 - [Licença](#-licença)
 
-## ✨ Características
+## Características
 
 - **Múltiplas Camadas**: Dense, Conv2D, Dropout, BatchNormalization, Flatten
 - **Funções de Ativação**: Sigmoid, ReLU, LeakyReLU, ELU, Tanh, Softmax, Linear
@@ -33,12 +33,12 @@ Uma biblioteca completa de Redes Neurais Artificiais implementada em PHP puro, c
 - **Salvamento/Carregamento**: Persistência completa de modelos treinados
 - **Suporte a Tensor**: Integração opcional com extensão `php_tensor` para aceleração
 
-## 📦 Requisitos
+## Requisitos
 
 - PHP 8.0 ou superior
 - Extensão `php_tensor` (opcional, para melhor performance)
 
-## 🚀 Instalação
+## Instalação
 
 Clone o repositório:
 
@@ -53,7 +53,7 @@ Inclua a classe principal no seu projeto:
 require_once 'NeuralNetwork.class.php';
 ```
 
-## 💡 Uso Básico
+## Uso Básico
 
 ### Exemplo: Problema XOR
 
@@ -100,7 +100,7 @@ foreach ($inputs as $input) {
 }
 ```
 
-## 🧩 Componentes
+## Componentes
 
 ### Camadas (Layers)
 
@@ -296,7 +296,7 @@ $nn->train(
 );
 ```
 
-## 📚 Exemplos Práticos
+## Exemplos Práticos
 
 ### 1. Classificação Binária (XOR)
 
@@ -392,7 +392,7 @@ $nn->configure([
 ]);
 ```
 
-## 💾 Salvamento e Carregamento de Modelos
+## Salvamento e Carregamento de Modelos
 
 ### Salvar Modelo Treinado
 
@@ -420,7 +420,7 @@ $prediction = $nn->predict([1.5, 2.3]);
 - Estado do otimizador
 - Configuração da função de perda
 
-## 📖 API Completa
+## API Completa
 
 ### Construtor
 
@@ -532,7 +532,7 @@ public static function load(string $filepath): NeuralNetwork
 **Retorno:**
 - Instância de `NeuralNetwork` com o modelo carregado
 
-## 🚀 Integração com php_tensor
+## Integração com php_tensor
 
 Esta biblioteca suporta a extensão `php_tensor` para aceleração de operações matriciais. Se a extensão estiver instalada, as operações serão automaticamente aceleradas.
 
@@ -550,7 +550,7 @@ if (extension_loaded('tensor')) {
 
 Consulte a documentação oficial do php_tensor para instruções de instalação específicas do seu sistema operacional.
 
-## 🎯 Dicas de Uso
+## Dicas de Uso
 
 ### Escolhendo a Taxa de Aprendizado
 
