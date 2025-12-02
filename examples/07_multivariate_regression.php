@@ -99,38 +99,38 @@ foreach ($samples as $sample) {
 $targetRange = $targetMax - $targetMin;
 $normalizedTargets = array_map(fn($t) => [($t - $targetMin) / $targetRange], $targets);
 
-echo "Feature ranges: \n";
-for ($i = 0; $i < 5; $i++) {
-    echo "  Feature $i: [" . number_format($featureMins[$i], 2) . ", " . number_format($featureMaxs[$i], 2) . "]\n";
-}
-echo "Target range: [" . number_format($targetMin, 2) . ", " . number_format($targetMax, 2) . "]\n\n";
+// echo "Feature ranges: \n";
+// for ($i = 0; $i < 5; $i++) {
+//     echo "  Feature $i: [" . number_format($featureMins[$i], 2) . ", " . number_format($featureMaxs[$i], 2) . "]\n";
+// }
+// echo "Target range: [" . number_format($targetMin, 2) . ", " . number_format($targetMax, 2) . "]\n\n";
 
 echo "Training multivariate regression (with normalization)....\n";
 
 // Simple network
 $layers = [
-    new Dense(5, 32, 'relu'),
-    new Dropout(0.2),
-    new Dense(32, 16, 'relu'),
+    new Dense(5, 32, 'leaky-relu'),
+    //new Dropout(0.2),
+    new Dense(32, 16, 'leaky-relu'),
     new Dense(16, 1, 'linear'),
 ];
 
 $nn = new \NeuralNetwork($layers);
 $nn->configure([
-    'learning_rate' => 0.01,
+    'learning_rate' => 0.001,
     'optimizer' => 'adam',
     'loss' => 'mse',
     'batch_size' => 16,
 ]);
 
-$nn->train($normalizedSamples, $normalizedTargets, 3000, 100, false);
+$nn->train($normalizedSamples, $normalizedTargets, 5000, 100, false);
 
 echo "\nTesting on first 5 samples:\n";
-echo str_repeat("-", 70) . "\n";
+echo str_repeat("-", 80) . "\n";
 printf("%-35s %-15s %-15s\n", "Input", "Predicted", "Actual");
-echo str_repeat("-", 70) . "\n";
+echo str_repeat("-", 80) . "\n";
 
-for ($i = 0; $i < 5; $i++) {
+for ($i = 0; $i < 30; $i++) {
     // Predict with normalized input
     $predNormalized = $nn->predict($normalizedSamples[$i]);
 
@@ -173,8 +173,8 @@ $avgErrorPct = $totalErrorPct / count($samples);
 
 echo str_repeat("-", 70) . "\n";
 echo "\nPerformance Summary:\n";
-echo "  Average Absolute Error: " . number_format($avgError, 2) . "\n";
-echo "  Average Error %: " . number_format($avgErrorPct, 2) . "%\n";
-echo "  Maximum Error: " . number_format($maxError, 2) . "\n";
-echo "  Total Samples: " . count($samples) . "\n";
+echo " - Average Absolute Error: " . number_format($avgError, 2) . "\n";
+echo " - Average Error %: " . number_format($avgErrorPct, 2) . "%\n";
+echo " - Maximum Error: " . number_format($maxError, 2) . "\n";
+echo " - Total Samples: " . count($samples) . "\n";
 ?>

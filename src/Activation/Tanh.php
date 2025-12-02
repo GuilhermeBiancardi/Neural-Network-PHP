@@ -19,8 +19,9 @@ class Tanh implements ActivationInterface {
         $result = [];
         for ($i = 0; $i < count($input); $i++) {
             for ($j = 0; $j < count($input[0]); $j++) {
-                $val = $input[$i][$j];
-                $result[$i][$j] = 1.0 - ($val * $val);
+                $z = $input[$i][$j];
+                $t = tanh($z);
+                $result[$i][$j] = 1.0 - ($t * $t);
             }
         }
         return $result;

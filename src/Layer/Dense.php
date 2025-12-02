@@ -4,6 +4,12 @@ declare (strict_types = 1);
 namespace NeuralNetwork\Layer;
 
 use NeuralNetwork\Activation\ActivationInterface;
+use NeuralNetwork\Activation\ELU;
+use NeuralNetwork\Activation\Gelu;
+use NeuralNetwork\Activation\HardSigmoid;
+use NeuralNetwork\Activation\HardSwish;
+use NeuralNetwork\Activation\HardTanh;
+use NeuralNetwork\Activation\LeakyRelu;
 use NeuralNetwork\Activation\Linear;
 use NeuralNetwork\Activation\Relu;
 use NeuralNetwork\Activation\Sigmoid;
@@ -39,10 +45,16 @@ class Dense implements LayerInterface {
         if (is_string($activation)) {
             $map = [
                 'relu' => Relu::class,
+                'elu' => ELU::class,
+                'leaky-relu' => LeakyRelu::class,
                 'sigmoid' => Sigmoid::class,
                 'tanh' => Tanh::class,
                 'softmax' => Softmax::class,
                 'linear' => Linear::class,
+                'gelu' => Gelu::class,
+                'hardsigmoid' => HardSigmoid::class,
+                'hardswish' => HardSwish::class,
+                'hardtanh' => HardTanh::class,
             ];
             $class = $map[strtolower($activation)] ?? null;
             if ($class === null) {
@@ -96,7 +108,7 @@ class Dense implements LayerInterface {
         // outputGradient: (batch_size x output_size)
         $outputGradientT = Matrix::transpose($outputGradient); // (output_size x batch_size)
 
-        $derivative = $this->activation->derivative($this->activatedOutput);
+        $derivative = $this->activation->derivative($this->output);
         $dZ = Matrix::hadamard($outputGradientT, $derivative);
 
         // dW = dZ * input^T

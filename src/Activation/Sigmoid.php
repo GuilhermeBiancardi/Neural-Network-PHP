@@ -20,8 +20,9 @@ class Sigmoid implements ActivationInterface {
         $result = [];
         for ($i = 0; $i < count($input); $i++) {
             for ($j = 0; $j < count($input[0]); $j++) {
-                $val = $input[$i][$j];
-                $result[$i][$j] = $val * (1.0 - $val);
+                $z = $input[$i][$j];
+                $s = 1.0 / (1.0 + exp(-$z));
+                $result[$i][$j] = $s * (1.0 - $s);
             }
         }
         return $result;

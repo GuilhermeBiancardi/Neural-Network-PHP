@@ -3,33 +3,31 @@ declare (strict_types = 1);
 
 namespace NeuralNetwork\Activation;
 
-class ELU implements ActivationInterface {
-    private float $alpha;
-
-    public function __construct(float $alpha = 1.0) {
-        $this->alpha = $alpha;
-    }
-
+class HardSigmoid implements ActivationInterface {
     public function activate(array $input): array {
         $output = [];
         foreach ($input as $row) {
             $newRow = [];
             foreach ($row as $val) {
-                $newRow[] = $val > 0 ? $val : $this->alpha * (exp($val) - 1);
+                // max(0, min(1, (x + 3) / 6))
+                $newRow[] = max(0.0, min(1.0, ($val + 3.0) / 6.0));
             }
             $output[] = $newRow;
         }
         return $output;
     }
 
-    public function derivative(array $activatedInput): array {
+    public function derivative(array $input): array {
         $output = [];
-        foreach ($activatedInput as $row) {
+        foreach ($input as $row) {
             $newRow = [];
             foreach ($row as $val) {
-                // f'(z) = 1 if z > 0
-                // f'(z) = alpha * exp(z) if z <= 0
-                $newRow[] = $val > 0 ? 1.0 : $this->alpha * exp($val);
+                // 1/6 if -3 <= x <= 3, else 0
+                if ($val >= -3.0 && $val <= 3.0) {
+                    $newRow[] = 1.0 / 6.0;
+                } else {
+                    $newRow[] = 0.0;
+                }
             }
             $output[] = $newRow;
         }
@@ -37,6 +35,6 @@ class ELU implements ActivationInterface {
     }
 
     public function getName(): string {
-        return 'elu';
+        return 'hardsigmoid';
     }
 }
